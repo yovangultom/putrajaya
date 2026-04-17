@@ -1,4 +1,5 @@
 // src/app/(admin)/admin/penggajian/cetak-massal/page.tsx
+import { Metadata } from "next";
 import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
 import Link from "next/link";

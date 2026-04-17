@@ -43,7 +43,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     async jwt({ token, user }) {
       if (user) {
         token.id = user.id; // Tambahkan ID agar bisa dilacak
-        token.role = user.role;
+        token.role = (user as any).role;
       }
       return token;
     },
@@ -66,10 +66,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 
         if (session.user) {
           session.user.id = dbUser.id;
-          session.user.role = dbUser.role as
-            | "SUPER_ADMIN"
-            | "FINANCE"
-            | "EDITOR";
+          // Perbaikan: Hapus sisa-sisa string literal yang menggantung
+          (session.user as any).role = dbUser.role;
         }
       }
       return session;

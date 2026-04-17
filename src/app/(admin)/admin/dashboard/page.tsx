@@ -51,7 +51,7 @@ export default async function DashboardPage() {
               Halo, {session?.user?.name?.split(' ')[0] || 'Admin'}! 👋
             </h2>
             <p className="text-slate-600 mt-2 text-sm">
-              Anda masuk sebagai <span className="font-bold text-blue-600 px-3 py-1 bg-blue-50 rounded-full border border-blue-100 uppercase text-[10px] tracking-widest">{session?.user?.role || 'ADMIN'}</span>.
+              Anda masuk sebagai <span className="font-bold text-blue-600 px-3 py-1 bg-blue-50 rounded-full border border-blue-100 uppercase text-[10px] tracking-widest">{(session?.user as any)?.role || 'ADMIN'}</span>.
               Pantau seluruh progres pekerjaan dan jadwal tim di lapangan hari ini.
             </p>
           </div>

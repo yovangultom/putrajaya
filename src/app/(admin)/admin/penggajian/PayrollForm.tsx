@@ -1,10 +1,17 @@
-// src/app/(admin)/admin/penggajian/PayrollForm.tsx
 "use client";
 
 import { useState, useMemo } from "react";
 import { Save, FileCheck, Banknote, Printer, Calculator, AlertCircle } from "lucide-react";
 import { simpanSlipGaji } from "./actions";
 import Link from "next/link";
+
+// DEFINISI TIPE DATA UNTUK STATE INPUT
+interface WorkerInput {
+    bonus: number;
+    kasbon: number;
+    isSaved: boolean;
+    payslipId?: string | null; // Tambahkan ini agar TS tidak protes
+}
 
 export default function PayrollForm({
     payrollData,
@@ -16,15 +23,16 @@ export default function PayrollForm({
     periodEnd: string
 }) {
     const [isPending, setIsPending] = useState(false);
-    const [inputs, setInputs] = useState(() => {
-        const initialState: Record<string, { bonus: number, kasbon: number, isSaved: boolean }> = {};
+
+    // PERBAIKAN: Berikan tipe data WorkerInput pada useState
+    const [inputs, setInputs] = useState<Record<string, WorkerInput>>(() => {
+        const initialState: Record<string, WorkerInput> = {};
         payrollData.forEach(p => {
-            // PERBAIKAN DI SINI: Gunakan nilai bonus dan kasbon dari database (jika ada)
             initialState[p.workerId] = {
                 bonus: p.bonus || 0,
                 kasbon: p.kasbonDeduction || 0,
                 isSaved: p.alreadyPaid,
-                payslipId: p.payslipId
+                payslipId: p.payslipId || null
             };
         });
         return initialState;
@@ -37,7 +45,6 @@ export default function PayrollForm({
         }));
     };
 
-    // 4. FITUR: Kalkulasi Total Uang Tunai yang Harus Disiapkan
     const totalRingkasan = useMemo(() => {
         return payrollData.reduce((acc, curr) => {
             const input = inputs[curr.workerId];
@@ -54,13 +61,11 @@ export default function PayrollForm({
         const netPay = basePay + overtimePay + workerInput.bonus - workerInput.kasbon;
 
         try {
-            // 1. Tangkap ID slip gaji yang baru saja dibuat oleh server
             const newPayslipId = await simpanSlipGaji({
                 workerId, periodStart, periodEnd, totalDays, totalOvertime,
                 bonus: workerInput.bonus, kasbonDeduction: workerInput.kasbon, netPay
             });
 
-            // 2. Simpan ID tersebut ke dalam state lokal agar tombol cetak langsung berfungsi
             setInputs(prev => ({
                 ...prev,
                 [workerId]: {
@@ -80,8 +85,6 @@ export default function PayrollForm({
 
     return (
         <div className="space-y-6">
-
-            {/* 3. LAYOUT PADAT & TABULAR */}
             <div className="bg-white rounded-2xl md:rounded-3xl shadow-sm border border-slate-200 overflow-hidden">
                 <div className="hidden md:block overflow-x-auto">
                     <table className="w-full text-sm text-left">
@@ -145,7 +148,7 @@ export default function PayrollForm({
                     </table>
                 </div>
 
-                {/* Versi Mobile (Card) */}
+                {/* Mobile View */}
                 <div className="md:hidden divide-y divide-slate-100">
                     {payrollData.map((data) => {
                         const input = inputs[data.workerId];
@@ -184,7 +187,6 @@ export default function PayrollForm({
                 </div>
             </div>
 
-            {/* 4. TOTAL SUMMARY BAR */}
             <div className="sticky bottom-0 z-20 bg-slate-900 text-white rounded-[2rem] p-5 md:p-6 shadow-2xl flex flex-col md:flex-row justify-between items-center gap-4 mt-8">
                 <div className="flex items-center gap-4 w-full md:w-auto">
                     <div className="bg-white/10 p-3 rounded-2xl">
@@ -209,7 +211,6 @@ export default function PayrollForm({
                 </div>
             </div>
 
-            {/* Warning Info */}
             <div className="flex items-center gap-2 text-slate-500 justify-center p-4">
                 <AlertCircle size={14} />
                 <p className="text-[10px] font-medium italic">Klik tombol "Bayarkan" di tiap baris untuk merekam transaksi ke pembukuan keuangan utama.</p>

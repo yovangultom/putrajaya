@@ -5,7 +5,8 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
 }
 
 // ==========================================
@@ -20,31 +21,25 @@ model User {
   image         String?
   password      String?
   signatureUrl  String?   // <-- Untuk simpan Tanda Tangan Digital Internal
-  role          Role      @default(EDITOR)
+  role          String    @default("EDITOR") // Diubah dari enum ke String
   accounts      Account[]
   sessions      Session[]
   projects      Project[] // Relasi pembuat proyek
 }
 
-enum Role {
-  SUPER_ADMIN
-  FINANCE
-  EDITOR
-}
-
 model Account {
-  id                 String  @id @default(cuid())
-  userId             String
-  type               String
-  provider           String
-  providerAccountId  String
-  refresh_token      String? @db.Text
-  access_token       String? @db.Text
-  expires_at         Int?
-  token_type         String?
-  scope              String?
-  id_token           String? @db.Text
-  session_state      String?
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? // Hapus @db.Text
+  access_token      String? // Hapus @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? // Hapus @db.Text
+  session_state     String?
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
   @@unique([provider, providerAccountId])
@@ -62,15 +57,6 @@ model Session {
 // 2. ALUR KERJA UTAMA (TAHAP 1 - 6)
 // ==========================================
 
-enum ProjectStatus {
-  PENGAJUAN           // Tahap 1: Dokumen Pengajuan
-  DEAL_SCHEDULED      // Tahap 2 & 3: Formulir SPK & Jadwal (Input DP)
-  IN_PROGRESS         // Tahap 4: Eksekusi Pengerjaan
-  COMPLETED_INVOICED  // Tahap 5: BAP, Lampiran Foto, & Invoice Terbit
-  PAID                // Tahap 6: Lunas
-  CANCELLED           // Tahap Batal: Proyek tidak deal atau dihentikan
-}
-
 model Project {
   id              String        @id @default(cuid())
   title           String        // Judul Pekerjaan
@@ -79,15 +65,15 @@ model Project {
   clientName      String        
   clientCompany   String?       
   clientPhone     String?       
-  clientAddress   String?       @db.Text 
-  projectLocation String        @db.Text 
+  clientAddress   String?       // Hapus @db.Text
+  projectLocation String        // Hapus @db.Text
 
   // Status & Pembayaran Awal
-  status          ProjectStatus @default(PENGAJUAN)
+  status          String        @default("PENGAJUAN") // Diubah dari enum ke String
   dpAmount        Float         @default(0) // Down Payment dicatat saat Deal
   startDate       DateTime?     // Jadwal mulai pengerjaan
   endDate         DateTime?     // Jadwal selesai pengerjaan
-  actualEndDate  DateTime? // Tanggal asli selesai (otomatis terisi saat BAP)
+  actualEndDate   DateTime?     // Tanggal asli selesai (otomatis terisi saat BAP)
 
 
   // Relasi ke Dokumen Lain
@@ -95,7 +81,7 @@ model Project {
   bap             Bap?            // Berita Acara & Lampiran
   invoice         Invoice?        // Tagihan Final
 
-  expenses       ProjectExpense[]
+  expenses        ProjectExpense[]
 
   // Audit Trail
   userId          String
@@ -121,7 +107,7 @@ model Bap {
   id          String   @id @default(cuid())
   bapNumber   String   @unique  // Auto: 001/BAP/PJ/IV/2026
   date        DateTime @default(now())
-  notes       String?  @db.Text // Teks penambahan/pengurangan volume
+  notes       String?  // Hapus @db.Text
 
   projectId   String   @unique
   project     Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
@@ -166,15 +152,10 @@ model Invoice {
 model DocumentCounter {
   id          String  @id @default(cuid())
   year        Int     // Contoh: 2026
-  type        DocType // BAP atau INVOICE
+  type        String  // Diubah dari enum ke String (BAP atau INVOICE)
   lastNumber  Int     @default(0) // Angka terakhir yg digunakan (misal 5)
 
   @@unique([year, type])
-}
-
-enum DocType {
-  BAP
-  INVOICE
 }
 
 model ProjectExpense {
