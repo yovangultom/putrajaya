@@ -98,6 +98,10 @@ export default async function CetakMassalSlipPage({ searchParams }: { searchPara
                         display: flex !important;
                         flex-direction: column !important;
                     }
+                    /* Mencegah halaman kosong di bagian paling akhir */
+                    .kertas-a4:last-child {
+                        page-break-after: auto !important;
+                    }
                 }
             `}} />
 

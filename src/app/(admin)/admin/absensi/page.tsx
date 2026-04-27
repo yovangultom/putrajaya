@@ -8,10 +8,20 @@ export default async function AbsensiPage({ searchParams }: { searchParams: Prom
     const params = await searchParams;
     const view = params.view || 'harian';
 
+    const today = new Date();
+
+    const formatLocalYYYYMMDD = (date: Date) => {
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+    };
+
     // ==========================================
     // LOGIKA UNTUK TAB "PENCATATAN HARIAN"
     // ==========================================
-    const selectedDateStr = params.date || new Date().toISOString().split('T')[0];
+    // Gunakan fungsi lokal agar tanggal default tidak mundur ke hari kemarin
+    const selectedDateStr = params.date || formatLocalYYYYMMDD(today);
     const targetDate = new Date(selectedDateStr);
     targetDate.setHours(0, 0, 0, 0);
     const nextDay = new Date(targetDate);
@@ -32,11 +42,11 @@ export default async function AbsensiPage({ searchParams }: { searchParams: Prom
     // ==========================================
     // LOGIKA UNTUK TAB "REKAPITULASI"
     // ==========================================
-    const today = new Date();
     const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
 
-    const startRekapStr = params.start || firstDayOfMonth.toISOString().split('T')[0];
-    const endRekapStr = params.end || today.toISOString().split('T')[0];
+    // Terapkan fungsi lokal agar default dari tgl 1 s/d hari ini (waktu Indonesia)
+    const startRekapStr = params.start || formatLocalYYYYMMDD(firstDayOfMonth);
+    const endRekapStr = params.end || formatLocalYYYYMMDD(today);
 
     const startRekapDate = new Date(startRekapStr);
     startRekapDate.setHours(0, 0, 0, 0);

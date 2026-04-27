@@ -4,25 +4,29 @@ import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import Image from "next/image";
-import { Menu, X, LayoutDashboard, FileText, Receipt, Briefcase, LogOut, CalendarRange, WalletMinimal } from "lucide-react";
+import { Menu, X, LayoutDashboard, FileText, Receipt, Briefcase, LogOut, CalendarRange, WalletMinimal, Users } from "lucide-react";
 
 export default function Sidebar({ session, signOutAction }: any) {
     const [isOpen, setIsOpen] = useState(false);
     const pathname = usePathname();
+    const userRole = session?.user?.role; // Ambil role dari session
 
     const menuItems = [
-        { name: "Dashboard", href: "/admin/dashboard", icon: LayoutDashboard },
-        { name: "Pengajuan", href: "/admin/pengajuan", icon: FileText },
-        { name: "Jadwal", href: "/admin/jadwal", icon: CalendarRange },
-        { name: "Invoice", href: "/admin/invoices", icon: Receipt },
-        { name: "Keuangan", href: "/admin/keuangan", icon: WalletMinimal },
-        { name: "Absensi", href: "/admin/absensi", icon: WalletMinimal },
-        { name: "Pekerja", href: "/admin/pekerja", icon: WalletMinimal },
-        { name: "Gaji", href: "/admin/penggajian", icon: WalletMinimal },
-        { name: "Portofolio", href: "/admin/projects", icon: Briefcase },
+        // Menu untuk Super Admin & Finance
+        { name: "Dashboard", href: "/admin/dashboard", icon: LayoutDashboard, access: ["SUPER_ADMIN", "FINANCE"] },
+        { name: "Pengajuan", href: "/admin/pengajuan", icon: FileText, access: ["SUPER_ADMIN", "FINANCE"] },
+        { name: "Jadwal", href: "/admin/jadwal", icon: CalendarRange, access: ["SUPER_ADMIN", "FINANCE"] },
+        { name: "Invoice", href: "/admin/invoices", icon: Receipt, access: ["SUPER_ADMIN", "FINANCE"] },
+        { name: "Keuangan", href: "/admin/keuangan", icon: WalletMinimal, access: ["SUPER_ADMIN", "FINANCE"] },
+        { name: "Absensi", href: "/admin/absensi", icon: Users, access: ["SUPER_ADMIN", "FINANCE"] },
+        { name: "Pekerja", href: "/admin/pekerja", icon: Users, access: ["SUPER_ADMIN", "FINANCE"] },
+        { name: "Gaji", href: "/admin/penggajian", icon: WalletMinimal, access: ["SUPER_ADMIN", "FINANCE"] },
 
+        { name: "Portofolio", href: "/admin/portofolio", icon: Briefcase, access: ["SUPER_ADMIN", "FINANCE", "ADMIN"] },
+
+        { name: "Manajemen Akun", href: "/admin/users", icon: Users, access: ["SUPER_ADMIN"] },
     ];
-
+    const filteredMenu = menuItems.filter(item => item.access.includes(userRole));
     return (
         <>
             {/* Tombol Hamburger untuk Mobile (Ditambahkan print:hidden agar tidak muncul di PDF) */}
@@ -73,8 +77,7 @@ export default function Sidebar({ session, signOutAction }: any) {
 
                 {/* Menu Navigasi */}
                 <nav className="flex-1 p-4 space-y-1">
-                    {menuItems.map((item) => {
-                        // Logika isActive agar lebih akurat jika ada sub-path
+                    {filteredMenu.map((item) => {
                         const isActive = pathname.startsWith(item.href);
                         return (
                             <Link
@@ -97,8 +100,12 @@ export default function Sidebar({ session, signOutAction }: any) {
                 <div className="p-4 border-t border-slate-800 bg-slate-950/50">
                     <div className="mb-4 px-2">
                         <p className="text-sm font-bold text-white truncate">{session.user?.name}</p>
-                        <span className="inline-block mt-1 px-2 py-0.5 bg-amber-500/10 text-amber-500 text-[10px] font-bold rounded border border-amber-500/20 uppercase">
-                            {session.user?.role}
+                        {/* Warna badge berbeda tiap role agar mudah dibedakan */}
+                        <span className={`inline-block mt-1 px-2 py-0.5 text-[10px] font-bold rounded border uppercase ${userRole === 'SUPER_ADMIN' ? 'bg-red-500/10 text-red-500 border-red-500/20' :
+                                userRole === 'FINANCE' ? 'bg-green-500/10 text-green-500 border-green-500/20' :
+                                    'bg-blue-500/10 text-blue-500 border-blue-500/20'
+                            }`}>
+                            {userRole.replace('_', ' ')}
                         </span>
                     </div>
 

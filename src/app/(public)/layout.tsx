@@ -1,9 +1,9 @@
 import FloatingWhatsApp from "@/components/public/FloatingWhatsApp";
 import Footer from "@/components/public/Footer";
 import Navbar from "@/components/public/Navbar";
+import ScrollToTop from "@/components/public/ScrollToTop";
+import { GoogleAnalytics } from '@next/third-parties/google';
 
-
-// src/app/(public)/layout.tsx
 export const metadata = {
     title: {
         default: "Jasa Konstruksi, Coring, Genset, dan Chemical Anchor - CV Putra Jaya",
@@ -13,11 +13,11 @@ export const metadata = {
     openGraph: {
         title: "Jasa Konstruksi, Coring, Genset, dan Chemical Anchor - CV Putra Jaya",
         description: "Solusi teknik terbaik dengan standar mutu tinggi, aman, dan tepat waktu.",
-        url: 'https://putrajaya.com', // Nanti ganti dengan domain asli
+        url: 'https://jasacoring.co.id',
         siteName: 'CV Putra Jaya',
         images: [
             {
-                url: '/og-image.jpg', // File ini ditaruh di folder public
+                url: '/og-image.jpg',
                 width: 1200,
                 height: 630,
             },
@@ -25,7 +25,11 @@ export const metadata = {
         locale: 'id_ID',
         type: 'website',
     },
+    verification: {
+        google: "bg2rUu0GRLru_YYsSNQaU2JM-oWUSdrkNzmVckVl5go",
+    },
 };
+
 export default function PublicLayout({
     children,
 }: {
@@ -33,10 +37,12 @@ export default function PublicLayout({
 }) {
     return (
         <>
+            <ScrollToTop />
             <Navbar />
             {children}
             <Footer />
             <FloatingWhatsApp />
+            <GoogleAnalytics gaId="G-89JZFL5CCF" />
         </>
     );
 }

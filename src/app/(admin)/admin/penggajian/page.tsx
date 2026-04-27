@@ -9,15 +9,9 @@ export default async function PenggajianPage({ searchParams }: { searchParams: P
     const view = params.view || 'pembayaran'; // Default tab
 
     const formatRp = (angka: number) => new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", minimumFractionDigits: 0 }).format(angka);
-
-    // ==========================================
-    // LOGIKA TAB 1: PEMBAYARAN (PAYROLL AKTIF)
-    // ==========================================
     const today = new Date();
-    const lastWeek = new Date(today);
-    lastWeek.setDate(today.getDate() - 6);
-
-    const startDateStr = params.start || lastWeek.toISOString().split('T')[0];
+    const firstDayOfCurrentMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+    const startDateStr = params.start || firstDayOfCurrentMonth.toISOString().split('T')[0];
     const endDateStr = params.end || today.toISOString().split('T')[0];
 
     let payrollData: any[] = [];

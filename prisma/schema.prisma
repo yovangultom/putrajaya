@@ -240,3 +240,36 @@ model CompanyExpense {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }
+
+model Portfolio {
+  id             String             @id @default(cuid())
+  title          String
+  slug           String             @unique
+  client         String
+  location       String
+  category       String
+  completionDate DateTime
+  image          String             // Gambar Utama (Thumbnail)
+  description    String
+  createdAt      DateTime           @default(now())
+  
+  // Tambahkan relasi ini:
+  gallery        PortfolioGallery[] 
+}
+
+// Tambahkan model baru ini di paling bawah:
+model PortfolioGallery {
+  id          String    @id @default(cuid())
+  imageUrl    String
+  portfolioId String
+  portfolio   Portfolio @relation(fields: [portfolioId], references: [id], onDelete: Cascade)
+}
+
+model CompanyIncome {
+  id          String   @id @default(cuid())
+  date        DateTime
+  description String
+  amount      Float
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}

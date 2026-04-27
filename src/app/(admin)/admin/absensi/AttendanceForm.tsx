@@ -1,7 +1,7 @@
 // src/app/(admin)/admin/absensi/AttendanceForm.tsx
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Save, Calendar, Clock, CheckSquare, Users, Info, RefreshCw, CheckCircle } from "lucide-react"; // Tambahkan CheckCircle
 import { simpanAbsensi } from "./actions";
@@ -17,12 +17,8 @@ export default function AttendanceForm({
 }) {
     const router = useRouter();
     const [isPending, setIsPending] = useState(false);
-
-    // STATE BARU: Untuk mengontrol munculnya Modal Sukses
     const [showSuccessModal, setShowSuccessModal] = useState(false);
-
     const isEditMode = existingData.length > 0;
-
     const [attendanceState, setAttendanceState] = useState(() => {
         return workers.map(worker => {
             const existing = existingData.find(a => a.workerId === worker.id);
@@ -35,6 +31,20 @@ export default function AttendanceForm({
             };
         });
     });
+    useEffect(() => {
+        setAttendanceState(
+            workers.map(worker => {
+                const existing = existingData.find(a => a.workerId === worker.id);
+                return {
+                    workerId: worker.id,
+                    name: worker.name,
+                    role: worker.role,
+                    status: existing ? existing.status : 1.0,
+                    overtimeHours: existing ? existing.overtimeHours : 0, // Akan 0 jika tidak ada existing data
+                };
+            })
+        );
+    }, [workers, existingData, selectedDate]);
 
     const handleTandaiSemuaHadir = () => {
         const newData = attendanceState.map(item => ({ ...item, status: 1.0 }));

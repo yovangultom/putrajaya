@@ -25,7 +25,7 @@ export default async function FormulirCetakPage({ params }: { params: Promise<{ 
 
     // Siapkan baris tabel. Minimal 8 baris sesuai contoh formulir fisik.
     const tableRows = [...project.pengajuanItems];
-    const minRows = 8;
+    const minRows = 9;
     while (tableRows.length < minRows) {
         tableRows.push({ id: `empty-${tableRows.length}`, description: "", qty: "", unit: "" } as any);
     }
@@ -126,11 +126,11 @@ export default async function FormulirCetakPage({ params }: { params: Promise<{ 
                         </thead>
                         <tbody>
                             {tableRows.map((item, index) => (
-                                <tr key={item.id || index} className="border-b border-black h-6 sm:h-8 print:h-7">
-                                    <td className="border-r border-black text-center  py-0">{index + 1}</td>
-                                    <td className="border-r border-black px-2 sm:px-3 print:px-3 py-0">{item.description}</td>
-                                    <td className="border-r border-black text-center py-0">{item.qty || ""}</td>
-                                    <td className="text-center py-0">{item.unit || ""}</td>
+                                <tr key={item.id || index} className="border-b border-black h-6 sm:h-8 print:h-7 print:py-0">
+                                    <td className="border-r border-black text-center  py-0 print:py-0">{index + 1}</td>
+                                    <td className="border-r border-black px-2 sm:px-3 print:px-3 py-0 print:py-0">{item.description}</td>
+                                    <td className="border-r border-black text-center py-0 print:py-0">{item.qty || ""}</td>
+                                    <td className="text-center py-0 print:py-0">{item.unit || ""}</td>
                                 </tr>
                             ))}
                         </tbody>

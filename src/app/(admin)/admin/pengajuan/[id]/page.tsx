@@ -1,4 +1,3 @@
-// src/app/(admin)/admin/pengajuan/[id]/page.tsx
 import { prisma } from "@/lib/prisma";
 import { notFound, redirect } from "next/navigation";
 import Link from "next/link";
@@ -7,7 +6,7 @@ import { revalidatePath } from "next/cache";
 import RescheduleButton from "./RescheduleButton";
 import CancelButton from "./CancelButton";
 import AddExpenseModal from "./AddExpenseModal";
-import { Receipt } from "lucide-react"; // Pastikan Receipt juga di-import jika belum
+import { Receipt } from "lucide-react";
 
 const statusPenerjemah: Record<string, string> = {
     PENGAJUAN: "Pengajuan",
@@ -17,6 +16,7 @@ const statusPenerjemah: Record<string, string> = {
     PAID: "Lunas",
     CANCELLED: "Dibatalkan"
 };
+
 export default async function DetailProyekPage({ params }: { params: Promise<{ id: string }> }) {
     const { id } = await params;
 
@@ -71,6 +71,7 @@ export default async function DetailProyekPage({ params }: { params: Promise<{ i
         });
         revalidatePath(`/admin/pengajuan/${id}`);
     }
+
     // 1. Tambahkan parameter projectId: string
     async function batalkanProyek(idProyek: string) {
         "use server";
@@ -88,6 +89,7 @@ export default async function DetailProyekPage({ params }: { params: Promise<{ i
             console.log("=== GAGAL UPDATE DATABASE ===", error);
         }
     }
+
     // Hitung Total Pengeluaran
     const totalPengeluaran = project.expenses.reduce((acc, curr) => acc + curr.amount, 0);
 
@@ -217,10 +219,11 @@ export default async function DetailProyekPage({ params }: { params: Promise<{ i
                     </div>
                 </div>
 
-                {/* KOLOM KANAN / ATAS: Panel Aksi Dinamis */}
-                <div className="lg:col-span-1">
+                {/* KOLOM KANAN: Panel Aksi Dinamis */}
+                <div className="lg:col-span-1 space-y-6 lg:sticky lg:top-8 h-fit">
+
                     {project.status === "PENGAJUAN" && (
-                        <div className="bg-white rounded-2xl md:rounded-3xl shadow-xl border border-blue-200 md:border-slate-200 overflow-hidden lg:sticky lg:top-8 relative z-10 -mb-4 md:mb-0">
+                        <div className="bg-white rounded-2xl md:rounded-3xl shadow-xl border border-blue-200 md:border-slate-200 overflow-hidden relative z-10">
                             <div className="bg-blue-600 h-2 w-full"></div>
                             <form action={terimaDanJadwalkan} className="p-5 md:p-8 space-y-4 md:space-y-5">
                                 <div className="mb-2 md:mb-4">
@@ -232,7 +235,7 @@ export default async function DetailProyekPage({ params }: { params: Promise<{ i
                                         <label className="text-[10px] font-black text-slate-800 uppercase tracking-widest block mb-1">Uang Muka (DP)</label>
                                         <input name="dpAmount" placeholder="kosongkan jika tidak ada" type="number" className="w-full px-4 py-2.5 md:py-3 text-black bg-slate-50 border border-slate-200 rounded-xl text-sm placeholder-slate-400 focus:ring-2 focus:ring-blue-600 outline-none transition-all" />
                                     </div>
-                                    <div className="grid grid-cols-2 gap-2 md:gap-3">
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 2xl:grid-cols-2 gap-2 md:gap-3">
                                         <div>
                                             <label className="text-[10px] font-black text-slate-800 uppercase tracking-widest block mb-1">Mulai</label>
                                             <input name="startDate" type="date" required className="w-full px-3 py-2.5 md:py-3 text-black bg-slate-50 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-blue-600 outline-none transition-all" />
@@ -247,20 +250,20 @@ export default async function DetailProyekPage({ params }: { params: Promise<{ i
                                     DEAL & JADWALKAN
                                 </button>
                             </form>
-                            {/* 2. Ikat ID proyek secara paksa agar tidak hilang */}
                             <CancelButton projectId={project.id} action={batalkanProyek} />
                         </div>
                     )}
 
                     {project.status === "CANCELLED" && (
-                        <div className="bg-red-50 border border-red-200 rounded-2xl md:rounded-3xl p-5 md:p-8 text-center lg:sticky lg:top-8 -mb-2 md:mb-0 shadow-sm">
+                        <div className="bg-red-50 border border-red-200 rounded-2xl md:rounded-3xl p-5 md:p-8 text-center shadow-sm">
                             <XCircle size={40} className="text-red-500 mx-auto mb-3 md:mb-4 md:w-12 md:h-12" />
                             <h3 className="font-bold text-red-900 uppercase tracking-tight text-sm md:text-base">Pengajuan Dibatalkan</h3>
                             <p className="text-[11px] md:text-sm text-red-700 mt-2 mb-2 leading-relaxed">Proyek ini tidak dilanjutkan / tidak mencapai kesepakatan.</p>
                         </div>
                     )}
+
                     {project.status === "DEAL_SCHEDULED" && (
-                        <div className="bg-purple-50 border border-purple-200 rounded-2xl md:rounded-3xl p-5 md:p-8 text-center lg:sticky lg:top-8 -mb-2 md:mb-0 shadow-sm">
+                        <div className="bg-purple-50 border border-purple-200 rounded-2xl md:rounded-3xl p-5 md:p-8 text-center shadow-sm">
                             <Calendar size={40} className="text-purple-500 mx-auto mb-3 md:mb-4 md:w-12 md:h-12" />
                             <h3 className="font-bold text-purple-900 uppercase tracking-tight text-sm md:text-base">Proyek Terjadwal</h3>
                             <p className="text-[11px] md:text-sm text-purple-700 mt-2">Pekerjaan siap dilaksanakan. Klik tombol di bawah jika tim sudah mulai bekerja di lapangan.</p>
@@ -285,7 +288,7 @@ export default async function DetailProyekPage({ params }: { params: Promise<{ i
                     )}
 
                     {project.status === "IN_PROGRESS" && (
-                        <div className="bg-blue-50 border border-blue-200 rounded-2xl md:rounded-3xl p-5 md:p-8 text-center lg:sticky lg:top-8 -mb-2 md:mb-0 shadow-sm">
+                        <div className="bg-blue-50 border border-blue-200 rounded-2xl md:rounded-3xl p-5 md:p-8 text-center shadow-sm">
                             <PlayCircle size={40} className="text-blue-500 mx-auto mb-3 md:mb-4 animate-pulse md:w-12 md:h-12" />
                             <h3 className="font-bold text-blue-900 uppercase tracking-tight text-sm md:text-base">Sedang Dikerjakan</h3>
                             <p className="text-[11px] md:text-sm text-blue-700 mt-2 mb-5 md:mb-8">Tim sedang melakukan eksekusi di lapangan. Jika sudah selesai, Anda bisa memproses Berita Acara (BAP).</p>
@@ -304,45 +307,46 @@ export default async function DetailProyekPage({ params }: { params: Promise<{ i
                     )}
 
                     {project.status === "COMPLETED_INVOICED" && (
-                        <div className="space-y-4 lg:sticky lg:top-8 -mb-2 md:mb-0">
-                            <div className="bg-teal-50 border border-teal-200 rounded-2xl md:rounded-3xl p-5 md:p-8 text-center shadow-sm">
-                                <FileText size={40} className="text-teal-500 mx-auto mb-3 md:mb-4 md:w-12 md:h-12" />
-                                <h3 className="font-bold text-teal-900 uppercase tracking-tight text-sm md:text-base">Menunggu Pembayaran</h3>
-                                <p className="text-[11px] md:text-sm text-teal-700 mt-2 mb-5 md:mb-6">BAP & Invoice sudah dikirim ke klien. Tekan tombol di bawah jika pembayaran sudah diterima lunas.</p>
+                        <div className="bg-teal-50 border border-teal-200 rounded-2xl md:rounded-3xl p-5 md:p-8 text-center shadow-sm">
+                            <FileText size={40} className="text-teal-500 mx-auto mb-3 md:mb-4 md:w-12 md:h-12" />
+                            <h3 className="font-bold text-teal-900 uppercase tracking-tight text-sm md:text-base">Menunggu Pembayaran</h3>
+                            <p className="text-[11px] md:text-sm text-teal-700 mt-2 mb-5 md:mb-6">BAP & Invoice sudah dikirim ke klien. Tekan tombol di bawah jika pembayaran sudah diterima lunas.</p>
 
-                                <form action={konfirmasiPelunasan}>
-                                    <button type="submit" className="w-full bg-teal-600 text-white font-black py-3.5 md:py-4 rounded-xl md:rounded-2xl hover:bg-teal-700 transition-all shadow-lg shadow-teal-900/20 flex items-center justify-center gap-2 text-[10px] md:text-xs tracking-widest mb-4 active:scale-[0.98]">
-                                        <CheckCircle size={16} className="md:w-4.5 md:h-4.5" /> KONFIRMASI LUNAS
-                                    </button>
-                                </form>
+                            <form action={konfirmasiPelunasan}>
+                                <button type="submit" className="w-full bg-teal-600 text-white font-black py-3.5 md:py-4 rounded-xl md:rounded-2xl hover:bg-teal-700 transition-all shadow-lg shadow-teal-900/20 flex items-center justify-center gap-2 text-[10px] md:text-xs tracking-widest mb-4 active:scale-[0.98]">
+                                    <CheckCircle size={16} className="md:w-4.5 md:h-4.5" /> KONFIRMASI LUNAS
+                                </button>
+                            </form>
 
-                                <div className="grid grid-cols-2 lg:grid-cols-1 gap-2">
-                                    <Link href={`/admin/pengajuan/${id}/bap/cetak`} className="text-[9px] md:text-[10px] font-bold text-teal-700 bg-white border border-teal-200 py-2.5 md:py-2 rounded-xl md:rounded-lg hover:bg-teal-100 uppercase transition-all flex items-center justify-center text-center">
-                                        Lihat BAP
-                                    </Link>
-                                    <Link href={`/admin/invoices/${project.invoice?.id}`} className="text-[9px] md:text-[10px] font-bold text-teal-700 bg-white border border-teal-200 py-2.5 md:py-2 rounded-xl md:rounded-lg hover:bg-teal-100 uppercase transition-all flex items-center justify-center text-center">
-                                        Lihat Invoice
-                                    </Link>
-                                </div>
+                            <div className="grid grid-cols-2 lg:grid-cols-1 gap-2">
+                                <Link href={`/admin/pengajuan/${id}/bap/cetak`} className="text-[9px] md:text-[10px] font-bold text-teal-700 bg-white border border-teal-200 py-2.5 md:py-2 rounded-xl md:rounded-lg hover:bg-teal-100 uppercase transition-all flex items-center justify-center text-center">
+                                    Lihat BAP
+                                </Link>
+                                <Link href={`/admin/invoices/${project.invoice?.id}`} className="text-[9px] md:text-[10px] font-bold text-teal-700 bg-white border border-teal-200 py-2.5 md:py-2 rounded-xl md:rounded-lg hover:bg-teal-100 uppercase transition-all flex items-center justify-center text-center">
+                                    Lihat Invoice
+                                </Link>
                             </div>
                         </div>
                     )}
+
                     {/* TAMPILKAN HANYA JIKA SUDAH DEAL */}
                     {project.status !== "PENGAJUAN" && project.status !== "CANCELLED" && (
-                        <div className="bg-white rounded-2xl md:rounded-3xl border border-slate-200 p-5 md:p-8 shadow-sm lg:sticky lg:top-8 -mb-2 md:mb-0 mt-6 md:mt-0">
+                        <div className="bg-white rounded-2xl md:rounded-3xl border border-slate-200 p-5 md:p-8 shadow-sm">
 
-                            {/* Header Pengeluaran */}
-                            <div className="flex flex-row justify-between items-center mb-6 border-b border-slate-100 pb-4">
+                            {/* PERBAIKAN: Header Pengeluaran dipaksa bertumpuk (flex-col) jika berada di kolom sempit (layar lg) */}
+                            <div className="flex flex-col sm:flex-row lg:flex-col 2xl:flex-row justify-between items-start sm:items-center lg:items-start 2xl:items-center gap-4 mb-6 border-b border-slate-100 pb-4">
                                 <h3 className="text-xs md:text-sm font-black text-slate-900 uppercase tracking-tight flex items-center gap-2">
-                                    <span className="bg-blue-50 text-blue-600 p-1.5 rounded-md">
+                                    <span className="bg-blue-50 text-blue-600 p-1.5 rounded-md shrink-0">
                                         <DollarSign size={16} />
                                     </span>
-                                    Pengeluaran Operasional
+                                    <span className="leading-tight">Pengeluaran Operasional</span>
                                 </h3>
-                                <AddExpenseModal projectId={project.id} />
+                                <div className="w-full sm:w-auto lg:w-full 2xl:w-auto shrink-0">
+                                    <AddExpenseModal projectId={project.id} />
+                                </div>
                             </div>
 
-                            {/* List Pengeluaran (Bisa di-scroll jika lebih dari 4 item) */}
+                            {/* List Pengeluaran */}
                             <div className="space-y-2.5 mb-6 max-h-60 overflow-y-auto pr-1 custom-scrollbar">
                                 {project.expenses.length === 0 ? (
                                     <p className="text-[11px] md:text-xs text-slate-400 italic py-4">Belum ada pengeluaran yang dicatat.</p>
@@ -370,7 +374,7 @@ export default async function DetailProyekPage({ params }: { params: Promise<{ i
                                     <span>({formatRupiah(totalPengeluaran)})</span>
                                 </div>
 
-                                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center p-4 md:p-5 bg-green-600 text-white rounded-xl md:rounded-2xl mt-5 shadow-lg shadow-green-900/10 gap-2">
+                                <div className="flex flex-col sm:flex-row lg:flex-col xl:flex-row justify-between items-start sm:items-center lg:items-start xl:items-center p-4 md:p-5 bg-green-600 text-white rounded-xl md:rounded-2xl mt-5 shadow-lg shadow-green-900/10 gap-2">
                                     <span className="text-[10px] md:text-[11px] font-black uppercase tracking-[0.1em] md:tracking-[0.2em] leading-tight opacity-90">
                                         <span className="hidden sm:block" />Pendapatan Bersih
                                     </span>
@@ -381,7 +385,7 @@ export default async function DetailProyekPage({ params }: { params: Promise<{ i
                     )}
 
                     {project.status === "PAID" && (
-                        <div className="bg-green-600 rounded-2xl md:rounded-3xl p-5 mt-5 md:p-8 text-center text-white lg:sticky lg:top-8 shadow-xl shadow-green-900/20  md:mb-0">
+                        <div className="bg-green-600 rounded-2xl md:rounded-3xl p-5 md:p-8 text-center text-white shadow-xl shadow-green-900/20">
                             <div className="bg-white/20 w-12 h-12 md:w-16 md:h-16 rounded-full flex items-center justify-center mx-auto mb-3 md:mb-4">
                                 <CheckCircle size={24} className="text-white md:w-8 md:h-8" />
                             </div>

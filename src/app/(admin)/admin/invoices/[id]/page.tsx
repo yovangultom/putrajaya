@@ -36,10 +36,23 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
     };
 }
 
-export default async function InvoicePrintPage({ params }: { params: Promise<{ id: string }> }) {
+export default async function InvoicePrintPage({ params, searchParams }: { params: Promise<{ id: string }>, searchParams: Promise<{ ttd?: string }> }) {
     const { id } = await params;
+    const sp = await searchParams;
+    const ttd = sp.ttd || "eka";
 
-    // Tarik data Invoice beserta relasi Proyek dan BAP-nya
+    // 2. KONFIGURASI NAMA & GAMBAR TTD
+    const signeeData = {
+        eka: {
+            name: "Eka Aji Saputro", // Sesuai dengan format asli invoice
+            image: "/ttd-eka.png"
+        },
+        ratno: {
+            name: "Ratno Palupi",
+            image: "/ttd-ratno.png"
+        }
+    };
+    const currentSignee = signeeData[ttd as keyof typeof signeeData] || signeeData.eka;
     const invoice = await prisma.invoice.findUnique({
         where: { id: id },
         include: {
@@ -83,11 +96,22 @@ export default async function InvoicePrintPage({ params }: { params: Promise<{ i
             }} />
 
             {/* Tombol Aksi (Akan sembunyi saat di-print) */}
-            <div className="w-full max-w-[21cm] mx-auto mb-4 md:mb-6 flex justify-between items-center print:hidden">
-                <Link href={`/admin/pengajuan/${project.id}`} className="flex items-center gap-2 text-slate-500 hover:text-slate-900 text-xs md:text-sm font-medium">
+            <div className="w-full max-w-[21cm] mx-auto mb-4 md:mb-6 flex flex-wrap justify-between items-center print:hidden gap-3">
+                <Link href={`/admin/pengajuan/${project.id}`} className="flex items-center gap-2 text-slate-500 hover:text-slate-900 text-xs md:text-sm font-medium shrink-0 order-1">
                     <ArrowLeft size={16} /> <span className="hidden sm:inline">Kembali</span><span className="sm:hidden">Kembali</span>
                 </Link>
-                <PrintButton />
+
+                {/* KANAN (Di mobile naik sejajar dgn Kembali): Tombol Print */}
+                <div className="shrink-0 order-2 sm:order-3">
+                    <PrintButton />
+                </div>
+
+                {/* TENGAH (Di mobile turun ke bawah): TOMBOL PEMILIH TTD */}
+                <div className="flex justify-center items-center gap-1 md:gap-2 bg-white p-1.5 md:p-2 rounded-xl border border-slate-200 shadow-sm w-full sm:w-auto order-3 sm:order-2">
+                    <span className="text-[9px] md:text-[10px] font-black text-slate-400 uppercase tracking-widest mx-1 md:mx-2">Pilih TTD:</span>
+                    <Link href={`?ttd=eka`} replace className={`px-2 md:px-3 py-1.5 md:py-2 rounded-lg text-[9px] md:text-[10px] font-black uppercase tracking-widest transition-colors ${ttd === 'eka' ? 'bg-blue-600 text-white shadow-sm' : 'bg-slate-50 text-slate-500 hover:bg-slate-100'}`}>Eka Aji</Link>
+                    <Link href={`?ttd=ratno`} replace className={`px-2 md:px-3 py-1.5 md:py-2 rounded-lg text-[9px] md:text-[10px] font-black uppercase tracking-widest transition-colors ${ttd === 'ratno' ? 'bg-blue-600 text-white shadow-sm' : 'bg-slate-50 text-slate-500 hover:bg-slate-100'}`}>Ratno Palupi</Link>
+                </div>
             </div>
 
             {/* KERTAS A4 (Tampilan persis dengan template) */}
@@ -137,7 +161,8 @@ export default async function InvoicePrintPage({ params }: { params: Promise<{ i
                                 <tr><td className="w-20 sm:w-28 md:w-32 print:w-32 align-top">Tanggal</td><td className="w-2 md:w-4 align-top">:</td><td className="align-top">{formatDate(invoice.date)}</td></tr>
                                 <tr><td className="align-top">No. Invoice</td><td className="align-top">:</td><td className="font-bold align-top">{invoice.invoiceNumber}</td></tr>
                                 <tr><td className="align-top">Termin</td><td className="align-top">:</td><td className="align-top">-</td></tr>
-                                <tr><td className="align-top">Tenggat Waktu</td><td className="align-top">:</td><td className="align-top">Selesai Pekerjaan</td></tr>
+                                <tr><td className="align-top">Tenggat Waktu</td><td className="align-top">:</td><td className="align-top border-2 border-dashed border-amber-300 print:border-none print:bg-transparent" contentEditable={true}
+                                    suppressContentEditableWarning={true}>Setelah Pekerjaan Selesai</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -166,7 +191,13 @@ export default async function InvoicePrintPage({ params }: { params: Promise<{ i
                         <tr className="border-b border-black text-center font-bold bg-gray-50 print:bg-transparent print:p-0">
                             <th className="border-r border-black py-1.5 md:py-2 w-6 md:w-10 print:w-10 print:p-0">No.</th>
                             <th className="border-r border-black py-1.5 md:py-2 print:p-0">Deskripsi</th>
-                            <th className="border-r border-black w-14 md:w-20 print:w-20 print:p-0" colSpan={2}>Volume<br /><span className="text-[8px] md:text-xs print:text-xs font-normal">Qty | Sat</span></th>
+                            <th className="border-r border-black w-14 md:w-20 print:w-20 p-0 align-top" colSpan={2}>
+                                <div className="border-b border-black py-1 md:py-1.5">Volume</div>
+                                <div className="flex w-full text-[8px] md:text-xs print:text-xs font-normal">
+                                    <div className="w-[42.8%] md:w-1/2 print:w-1/2 border-r border-black border-dashed py-1 flex justify-center items-center">Qty</div>
+                                    <div className="flex-1 py-1 flex justify-center items-center">Sat</div>
+                                </div>
+                            </th>
                             <th className="border-r border-black w-20 md:w-32 print:w-32 print:p-0">Harga Satuan</th>
                             <th className="py-1.5 md:py-2 w-24 md:w-36 print:w-36 print:p-0">Jumlah Harga</th>
                         </tr>
@@ -174,20 +205,20 @@ export default async function InvoicePrintPage({ params }: { params: Promise<{ i
                     <tbody>
                         {bapItems.map((item, index) => (
                             <tr key={item.id} className="border-b border-black">
-                                <td className="border-r border-black py-1.5 md:py-1 px-1 text-center align-top print:px-0.5 print:py-0">{index + 1}</td>
-                                <td className="border-r border-black py-1.5 md:py-1 px-1.5 md:px-3 align-top leading-relaxed print:px-0.5 print:py-0">{item.description}</td>
+                                <td className="border-r border-black py-1.5 md:py-1 px-1 text-center align-middle print:px-0.5 print:py-0">{index + 1}</td>
+                                <td className="border-r border-black py-1.5 md:py-1 px-1.5 md:px-3 align-middle leading-relaxed print:px-0.5 print:py-0">{item.description}</td>
 
-                                <td className="border-r border-black border-dashed py-1.5 md:py-1 text-center w-6 md:w-10 print:w-10 align-top print:px-0.5 print:py-0">{item.qty}</td>
-                                <td className="border-r border-black py-1.5 md:py-1 text-center w-8 md:w-10 print:w-10 align-top print:px-0.5 print:py-0">{item.unit}</td>
+                                <td className="border-r border-black border-dashed py-1.5 md:py-1 text-center w-6 md:w-10 print:w-10 align-middle print:px-0.5 print:py-0">{item.qty}</td>
+                                <td className="border-r border-black py-1.5 md:py-1 text-center w-8 md:w-10 print:w-10 align-middle print:px-0.5 print:py-0">{item.unit}</td>
 
-                                <td className="border-r border-black py-1.5 md:py-1 px-1.5 md:px-3 align-top print:px-0.5 print:py-0">
+                                <td className="border-r border-black py-1.5 md:py-1 px-1.5 md:px-3 align-middle print:px-0.5 print:py-0">
                                     <div className="flex justify-between w-full">
                                         <span>Rp</span>
                                         <span>{item.price.toLocaleString('id-ID')}</span>
                                     </div>
                                 </td>
 
-                                <td className="py-1.5 md:py-1 px-1.5 md:px-3 align-top print:px-0.5 print:py-0">
+                                <td className="py-1.5 md:py-1 px-1.5 md:px-3 align-middle print:px-0.5 print:py-0">
                                     <div className="flex justify-between w-full font-bold">
                                         <span>Rp</span>
                                         <span>{(item.qty * item.price).toLocaleString('id-ID')}</span>
@@ -229,7 +260,7 @@ export default async function InvoicePrintPage({ params }: { params: Promise<{ i
 
                 {/* Terbilang */}
                 <div className="flex flex-col sm:flex-row sm:gap-4 text-[11px] sm:text-xs md:text-sm print:text-[10pt] text-black mb-6 md:mb-5 mt-3">
-                    <div className="font-bold w-full sm:w-24 print:w-24">Terbilang:</div>
+                    <div className="font-bold w-full sm:w-24 print:w-12">Terbilang:</div>
                     <div className="font-bold italic mt-1 sm:mt-0 bg-slate-100 print:bg-transparent px-2 py-1 sm:p-0 rounded-md sm:rounded-none">{terbilang(grandTotal)} Rupiah</div>
                 </div>
 
@@ -288,14 +319,31 @@ export default async function InvoicePrintPage({ params }: { params: Promise<{ i
 
                 {/* Kolom Tanda Tangan */}
                 <div className="flex justify-between text-[11px] sm:text-xs md:text-sm print:text-[10pt] text-black px-2 sm:px-10 print:px-10 mt-10 md:mt-16 print:mt-16 print:break-inside-avoid">
+
+                    {/* KIRI: TANDA TERIMA */}
                     <div className="text-center w-1/2">
-                        <p className="mb-12 md:mb-16 print:mb-16">Tanda Terima,</p>
+                        <p>Tanda Terima, </p>
+                        <br /><br /><br />
+                        {/* Spacer kosong penyeimbang agar sejajar dengan gambar di kanan */}
+                        <div className="h-16 md:h-20 print:h-20 w-full my-1"></div>
                         <p>( ____________________ )</p>
                     </div>
-                    <div className="text-center w-1/2 relative">
-                        <p className="mb-12 md:mb-16 print:mb-16">Hormat Kami,</p>
-                        <p className="font-bold underline">Eka Aji Saputro</p>
-                        <p>(CV Putra Jaya)</p>
+
+                    {/* KANAN: HORMAT KAMI & TANDA TANGAN */}
+                    <div className="text-center w-1/2">
+                        <p>Hormat Kami,</p>
+
+                        {/* Wrapper gambar dengan tinggi tetap. Print akan aman karena tidak pakai absolute */}
+                        <div className="h-16 md:h-20 print:h-20 w-full flex justify-center items-center my-1">
+                            <img
+                                src={currentSignee.image}
+                                alt="ttd"
+                                className="max-h-full max-w-[120px] print:max-w-[140px] object-contain"
+                            />
+                        </div>
+
+                        <p className="font-bold underline leading-tight">{currentSignee.name}</p>
+                        <p className="leading-tight">(CV Putra Jaya)</p>
                     </div>
                 </div>
 

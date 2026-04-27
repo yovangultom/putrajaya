@@ -1,9 +1,11 @@
-// next.config.ts atau next.config.js
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  // PINDAHKAN KE SINI (Top Level)
   allowedDevOrigins: ["192.168.100.44", "localhost:3000"],
+
+  images: {
+    qualities: [75, 95],
+  },
 
   experimental: {
     serverActions: {
