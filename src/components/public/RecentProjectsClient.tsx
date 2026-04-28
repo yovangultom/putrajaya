@@ -51,7 +51,7 @@ export default function RecentProjectsClient({ projects }: { projects: any[] }) 
                                         </div>
                                     </div>
                                     <div className="p-8 flex flex-col flex-1">
-                                        <h4 className="text-xl font-black text-[#0B0C35] mb-4 leading-tight group-hover:text-[#F49414] transition-colors line-clamp-2 min-h-[3.5rem]">
+                                        <h4 className="text-lg font-black text-[#0B0C35] mb-4 leading-tight group-hover:text-[#F49414] transition-colors ">
                                             {project.title}
                                         </h4>
                                         <div className="space-y-2 mt-auto">

@@ -18,7 +18,6 @@ const slugify = (text: string) => {
     .replace(/--+/g, "-");
 };
 
-// Fungsi Helper agar tidak mengulang kode optimasi Sharp
 async function processImage(file: File) {
   const bytes = await file.arrayBuffer();
   const buffer = Buffer.from(bytes);
@@ -49,11 +48,9 @@ export async function submitPortfolio(formData: FormData) {
     const completionDate = new Date(formData.get("completionDate") as string);
     const slug = `${slugify(title)}-${Date.now().toString().slice(-4)}`;
 
-    // 1. Ambil File
     const mainImageFile = formData.get("mainImage") as File;
     const galleryFiles = formData.getAll("galleryImages") as File[];
 
-    // Validasi maksimal 4 foto tambahan (total 5 dengan main image)
     if (galleryFiles.length > 4) {
       return {
         success: false,
@@ -68,7 +65,6 @@ export async function submitPortfolio(formData: FormData) {
       return { success: false, message: "Gambar utama wajib diisi!" };
     }
 
-    // 2. Proses Foto Tambahan (Looping)
     const galleryPaths = [];
     for (const file of galleryFiles) {
       if (file.size > 0) {
@@ -77,7 +73,6 @@ export async function submitPortfolio(formData: FormData) {
       }
     }
 
-    // 3. Simpan ke Database (Portfolio + Gallery)
     await prisma.portfolio.create({
       data: {
         title,
@@ -89,11 +84,11 @@ export async function submitPortfolio(formData: FormData) {
         completionDate,
         image: mainImagePath,
         gallery: {
-          create: galleryPaths, // Otomatis insert ke tabel PortfolioGallery
+          create: galleryPaths,
         },
       },
     });
-
+    revalidatePath("/");
     revalidatePath("/proyek");
     revalidatePath(`/proyek/${slug}`, "page");
     revalidatePath("/admin/portofolio");
@@ -111,24 +106,19 @@ export async function submitPortfolio(formData: FormData) {
   }
 }
 
-// ... (biarkan fungsi submitPortfolio di atasnya tetap sama) ...
-
 export async function deletePortfolio(id: string, imagePath: string) {
   try {
-    // Ambil data galeri sebelum dihapus
     const portfolio = await prisma.portfolio.findUnique({
       where: { id },
       include: { gallery: true },
     });
 
-    // 1. Hapus Gambar Utama dari VPS
     if (imagePath) {
       try {
         await unlink(path.join(process.cwd(), "public", imagePath));
       } catch (e) {}
     }
 
-    // 2. Hapus Gambar Galeri dari VPS
     if (portfolio?.gallery) {
       for (const img of portfolio.gallery) {
         try {
@@ -137,9 +127,8 @@ export async function deletePortfolio(id: string, imagePath: string) {
       }
     }
 
-    // 3. Hapus data dari database (otomatis menghapus baris di PortfolioGallery karena onDelete: Cascade)
     await prisma.portfolio.delete({ where: { id } });
-
+    revalidatePath("/");
     revalidatePath("/proyek");
     revalidatePath("/admin/portofolio");
 
@@ -183,7 +172,6 @@ export async function updatePortfolio(
 
     let finalImagePath = oldImagePath;
 
-    // --- 1. UPDATE GAMBAR UTAMA (Jika ada upload baru) ---
     if (mainImageFile && mainImageFile.size > 0) {
       finalImagePath = await processImage(mainImageFile);
       if (oldImagePath) {
@@ -193,7 +181,6 @@ export async function updatePortfolio(
       }
     }
 
-    // --- 2. UPDATE DATABASE (Teks & Gambar Utama) ---
     await prisma.portfolio.update({
       where: { id },
       data: {
@@ -208,34 +195,28 @@ export async function updatePortfolio(
       },
     });
 
-    // --- 3. UPDATE GALERI (Jika ada upload foto tambahan baru) ---
     if (validGalleryFiles.length > 0) {
-      // Ambil galeri lama untuk dihapus filenya
       const oldGallery = await prisma.portfolioGallery.findMany({
         where: { portfolioId: id },
       });
 
-      // Hapus file fisik galeri lama dari VPS
       for (const img of oldGallery) {
         try {
           await unlink(path.join(process.cwd(), "public", img.imageUrl));
         } catch (e) {}
       }
 
-      // Hapus data galeri lama dari Database
       await prisma.portfolioGallery.deleteMany({ where: { portfolioId: id } });
 
-      // Simpan foto galeri baru
       const galleryPaths = [];
       for (const file of validGalleryFiles) {
         const url = await processImage(file);
         galleryPaths.push({ imageUrl: url, portfolioId: id });
       }
 
-      // Insert galeri baru ke database
       await prisma.portfolioGallery.createMany({ data: galleryPaths });
     }
-
+    revalidatePath("/");
     revalidatePath("/proyek");
     revalidatePath("/admin/portofolio");
 
