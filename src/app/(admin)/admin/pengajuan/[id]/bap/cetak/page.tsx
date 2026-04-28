@@ -175,6 +175,7 @@ export default async function BapPrintPage({ params, searchParams }: { params: P
                                         src={currentSignee.image}
                                         alt={`Tanda Tangan ${currentSignee.name}`}
                                         className="h-16 md:h-20 print:h-16 object-contain"
+
                                     />
                                 </div>
                                 <div className="relative z-10 font-bold underline leading-tight">{currentSignee.name}</div>

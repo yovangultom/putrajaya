@@ -1,4 +1,3 @@
-// src/app/(admin)/admin/pengajuan/[id]/bap/actions.ts
 "use server";
 import { prisma } from "@/lib/prisma";
 import { writeFile, mkdir } from "fs/promises";
@@ -62,7 +61,6 @@ export async function simpanBapDanInvoice(formData: FormData) {
         error: "BAP untuk proyek ini sudah pernah diterbitkan.",
       };
     }
-    // =====================================================================
 
     const items = JSON.parse(formData.get("items") as string);
     const attachments = [];
@@ -70,7 +68,6 @@ export async function simpanBapDanInvoice(formData: FormData) {
 
     await mkdir(uploadDir, { recursive: true });
 
-    // Cari semua file yang diupload dari FormData
     for (const [key, value] of formData.entries()) {
       if (key.startsWith("photo_") && value instanceof File && value.size > 0) {
         const index = key.split("_")[1];
@@ -107,7 +104,6 @@ export async function simpanBapDanInvoice(formData: FormData) {
                 price: Number(item.price),
               })),
             },
-            // Simpan relasi lampiran foto ke database
             attachments: { create: attachments },
           },
         },

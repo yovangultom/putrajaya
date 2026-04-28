@@ -33,7 +33,7 @@ export default async function AdminPortofolioPage() {
                                 <div key={item.id} className="bg-slate-50 p-4 rounded-xl border border-slate-200 flex flex-col gap-4 shadow-sm">
                                     <div className="flex gap-4 items-start">
                                         <div className="relative w-20 h-20 rounded-lg overflow-hidden shrink-0 bg-slate-200 border border-slate-200">
-                                            <Image src={item.image} alt={item.title} fill className="object-cover" sizes="80px" />
+                                            <Image src={item.image} alt={item.title} fill className="object-cover" sizes="80px" unoptimized />
                                         </div>
                                         <div>
                                             <h3 className="font-bold text-[#0B0C35] text-sm line-clamp-2 leading-snug mb-2">{item.title}</h3>
@@ -87,7 +87,7 @@ export default async function AdminPortofolioPage() {
                                         <tr key={item.id} className="border-b border-slate-50 hover:bg-slate-50 transition-colors">
                                             <td className="py-4 pl-2">
                                                 <div className="relative w-16 h-16 rounded-md overflow-hidden bg-slate-200 shadow-sm border border-slate-100">
-                                                    <Image src={item.image} alt={item.title} fill className="object-cover" sizes="64px" />
+                                                    <Image src={item.image} alt={item.title} fill className="object-cover" sizes="64px" unoptimized />
                                                 </div>
                                             </td>
                                             <td className="py-4 pr-4">
