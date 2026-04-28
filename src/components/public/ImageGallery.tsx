@@ -24,7 +24,7 @@ export default function ImageGallery({ mainImage, gallery, title }: { mainImage:
                 className="relative aspect-video rounded-3xl overflow-hidden shadow-lg bg-slate-200 cursor-zoom-in group"
                 onClick={() => setSelectedImg(mainImage)}
             >
-                <Image src={mainImage} alt={title} fill className="object-cover group-hover:scale-105 transition-transform duration-700" priority sizes="(max-width: 768px) 100vw, (max-width: 1200px) 66vw, 800px" />
+                <Image src={mainImage} alt={title} fill className="object-cover group-hover:scale-105 transition-transform duration-700" priority sizes="(max-width: 768px) 100vw, (max-width: 1200px) 66vw, 800px" unoptimized />
                 <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                     <span className="text-white text-[10px] md:text-xs font-black bg-black/40 px-4 py-2 rounded-full backdrop-blur-md uppercase tracking-widest">Klik untuk memperbesar</span>
                 </div>
@@ -44,6 +44,7 @@ export default function ImageGallery({ mainImage, gallery, title }: { mainImage:
                                 fill
                                 className="object-cover group-hover:scale-110 transition-transform duration-500"
                                 sizes="(max-width: 768px) 50vw, 25vw"
+                                unoptimized
                             />
                         </div>
                     ))}
@@ -74,6 +75,7 @@ export default function ImageGallery({ mainImage, gallery, title }: { mainImage:
                                     quality={95}
                                     priority
                                     sizes="(max-width: 768px) 100vw, (max-width: 1200px) 90vw, 1200px"
+                                    unoptimized
                                 />
 
 
@@ -85,6 +87,7 @@ export default function ImageGallery({ mainImage, gallery, title }: { mainImage:
                                             fill
                                             className="object-contain grayscale-0 brightness-100"
                                             sizes="(max-width: 768px) 128px, 192px"
+
                                         />
                                     </div>
                                 </div>
