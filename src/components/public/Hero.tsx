@@ -32,7 +32,7 @@ export default function Hero() {
                 </div>
                 <div className="relative w-full h-full hidden md:block">
                     <Image
-                        src="/images/genset.jpg"
+                        src="/images/hero-genset.jpg"
                         alt="Jasa Genset"
                         fill
                         className="object-cover"

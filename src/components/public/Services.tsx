@@ -18,7 +18,7 @@ export default function Services() {
             title: "Perencanaan Konstruksi",
             slug: "perencanaan-konstruksi",
             icon: <PencilRuler size={20} />,
-            img: "/images/services/Layanan_PerencanaanKonstruksi copy.jpg",
+            img: "/images/services/Layanan_PerencanaanKonstruksi.jpg",
             desc: "Penyusunan desain, analisis teknis, dan strategi pembangunan yang terukur untuk hasil efisien dan berkelanjutan."
         },
         {

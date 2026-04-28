@@ -1,4 +1,3 @@
-// prisma/schema.prisma
 
 generator client {
   provider = "prisma-client-js"
@@ -9,9 +8,6 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// ==========================================
-// 1. MANAJEMEN USER & AUTH (NEXTAUTH)
-// ==========================================
 
 model User {
   id            String    @id @default(cuid())
@@ -20,11 +16,11 @@ model User {
   emailVerified DateTime?
   image         String?
   password      String?
-  signatureUrl  String?   // <-- Untuk simpan Tanda Tangan Digital Internal
-  role          String    @default("EDITOR") // Diubah dari enum ke String
+  signatureUrl  String?   
+  role          String    @default("EDITOR") 
   accounts      Account[]
   sessions      Session[]
-  projects      Project[] // Relasi pembuat proyek
+  projects      Project[] 
 }
 
 model Account {
@@ -33,12 +29,12 @@ model Account {
   type              String
   provider          String
   providerAccountId String
-  refresh_token     String? // Hapus @db.Text
-  access_token      String? // Hapus @db.Text
+  refresh_token     String? 
+  access_token      String? 
   expires_at        Int?
   token_type        String?
   scope             String?
-  id_token          String? // Hapus @db.Text
+  id_token          String? 
   session_state     String?
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -53,75 +49,66 @@ model Session {
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
-// ==========================================
-// 2. ALUR KERJA UTAMA (TAHAP 1 - 6)
-// ==========================================
 
 model Project {
   id              String        @id @default(cuid())
-  title           String        // Judul Pekerjaan
+  title           String        
   
-  // Data Klien (Dari Formulir Pemberi Kerja)
   clientName      String        
   clientCompany   String?       
   clientPhone     String?       
-  clientAddress   String?       // Hapus @db.Text
-  projectLocation String        // Hapus @db.Text
+  clientAddress   String?       
+  projectLocation String        
 
-  // Status & Pembayaran Awal
-  status          String        @default("PENGAJUAN") // Diubah dari enum ke String
-  dpAmount        Float         @default(0) // Down Payment dicatat saat Deal
-  startDate       DateTime?     // Jadwal mulai pengerjaan
-  endDate         DateTime?     // Jadwal selesai pengerjaan
-  actualEndDate   DateTime?     // Tanggal asli selesai (otomatis terisi saat BAP)
+  status          String        @default("PENGAJUAN") 
+  dpAmount        Float         @default(0) 
+  startDate       DateTime?     
+  endDate         DateTime?     
+  actualEndDate   DateTime?     
 
 
-  // Relasi ke Dokumen Lain
-  pengajuanItems  PengajuanItem[] // Tabel Rincian Pengajuan Awal
-  bap             Bap?            // Berita Acara & Lampiran
-  invoice         Invoice?        // Tagihan Final
+  pengajuanItems  PengajuanItem[] 
+  bap             Bap?            
+  invoice         Invoice?        
 
   expenses        ProjectExpense[]
 
-  // Audit Trail
   userId          String
   user            User          @relation(fields: [userId], references: [id])
   createdAt       DateTime      @default(now())
   updatedAt       DateTime      @updatedAt
 }
 
-// --- TAHAP 1: PENGAJUAN AWAL ---
 model PengajuanItem {
   id          String  @id @default(cuid())
-  description String  // Contoh: Coring Lantai 4"
-  qty         Float   // Pake Float karena bisa saja volumenya koma
-  unit        String  // Contoh: titik, ls
-  price       Float   // Harga Satuan Estimasi Awal
+  description String  
+  qty         Float   
+  unit        String  
+  price       Float   
   
   projectId   String
   project     Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
 }
 
-// --- TAHAP 5A: BERITA ACARA (BAP) ---
 model Bap {
   id          String   @id @default(cuid())
-  bapNumber   String   @unique  // Auto: 001/BAP/PJ/IV/2026
+  bapNumber   String   @unique  
   date        DateTime @default(now())
-  notes       String?  // Hapus @db.Text
+  notes       String?  
 
   projectId   String   @unique
   project     Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
 
-  items       BapItem[]       // Rincian Aktual (Input harga baru di sini)
-  attachments BapAttachment[] // Lampiran Foto
+  items       BapItem[]       
+  attachments BapAttachment[] 
 }
 
 model BapItem {
   id          String  @id @default(cuid())
-  description String  // Contoh: Penambahan Coring D = 5"
+  description String  
   qty         Float
   unit        String
-  price       Float   // Harga Satuan Aktual untuk Invoice
+  price       Float   
   
   bapId       String
   bap         Bap     @relation(fields: [bapId], references: [id], onDelete: Cascade)
@@ -129,31 +116,29 @@ model BapItem {
 
 model BapAttachment {
   id          String  @id @default(cuid())
-  imageUrl    String  // Path folder lokal: /uploads/foto-1.jpg
-  description String  // Contoh: Proses Pekerjaan Coring
+  imageUrl    String  
+  description String  
   
   bapId       String
   bap         Bap     @relation(fields: [bapId], references: [id], onDelete: Cascade)
 }
 
-// --- TAHAP 5B & 6: INVOICE ---
 model Invoice {
   id            String   @id @default(cuid())
-  invoiceNumber String   @unique // Auto: 001/INV/PJ/IV/2026
+  invoiceNumber String   @unique 
   date          DateTime @default(now())
-  dueDate       DateTime? // Tenggat Waktu Pembayaran
-  terbilang     String   // Teks: "Satu Juta Rupiah"
+  dueDate       DateTime? 
+  terbilang     String   
 
   projectId     String   @unique
   project       Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
 }
 
-// --- TABEL SISTEM (UNTUK PENOMORAN OTOMATIS) ---
 model DocumentCounter {
   id          String  @id @default(cuid())
-  year        Int     // Contoh: 2026
-  type        String  // Diubah dari enum ke String (BAP atau INVOICE)
-  lastNumber  Int     @default(0) // Angka terakhir yg digunakan (misal 5)
+  year        Int     
+  type        String  
+  lastNumber  Int     @default(0) 
 
   @@unique([year, type])
 }
@@ -162,27 +147,22 @@ model ProjectExpense {
   id          String   @id @default(cuid())
   projectId   String
   project     Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  description String   // Contoh: "Bensin operasional", "Kopi & Makan Tukang"
-  amount      Float    // Nominal pengeluaran, contoh: 50000
-  date        DateTime @default(now()) // Tanggal pengeluaran dicatat
+  description String   
+  amount      Float    
+  date        DateTime @default(now()) 
   
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }
 
-// ==========================================
-// SISTEM HR & PAYROLL (ABSENSI & GAJI)
-// ==========================================
 
-// 1. DATA PEKERJA UTAMA
 model Worker {
   id                  String       @id @default(cuid())
   name                String
-  role                String       // Contoh: Mandor, Tukang Besi, Kenek
-  dailyWage           Float        // Gaji pokok per 1 hari kerja (Full Day)
-  overtimeRatePerHour Float        @default(0) // Upah lembur per jam
+  role                String       
+  dailyWage           Float        
+  overtimeRatePerHour Float        @default(0) 
   
-  // Relasi: 1 Pekerja punya banyak riwayat absensi dan slip gaji
   attendances         Attendance[]
   payslips            Payslip[]
   
@@ -190,44 +170,38 @@ model Worker {
   updatedAt           DateTime     @updatedAt
 }
 
-// 2. DATA ABSENSI HARIAN
 model Attendance {
   id            String    @id @default(cuid())
   workerId      String
   worker        Worker    @relation(fields: [workerId], references: [id], onDelete: Cascade)
   
-  date          DateTime  @default(now()) // Tanggal absensi dicatat
+  date          DateTime  @default(now()) 
   
   // 1 = Hadir Penuh, 0.5 = Setengah Hari, 0 = Tidak Hadir/Izin
   status        Float     @default(1.0) 
   
-  overtimeHours Float     @default(0) // Jumlah jam lembur di hari tersebut
+  overtimeHours Float     @default(0) 
   
-  notes         String?   // Catatan tambahan (opsional)
+  notes         String?   
   
   createdAt     DateTime  @default(now())
 }
 
-// 3. DATA SLIP GAJI MINGGUAN
 model Payslip {
   id              String   @id @default(cuid())
   workerId        String
   worker          Worker   @relation(fields: [workerId], references: [id], onDelete: Cascade)
   
-  // Periode Mingguan (Contoh: 1 April - 6 April)
   periodStart     DateTime 
   periodEnd       DateTime 
   
-  // Rekapan dari Absensi
-  totalDays       Float    // Total hari kerja (misal: 5.5 hari)
-  totalOvertime   Float    // Total jam lembur seminggu
+  totalDays       Float    
+  totalOvertime   Float    
   
-  // Variabel Penambah/Pengurang
-  bonus           Float    @default(0) // Uang tambahan/kerajinan
-  kasbonDeduction Float    @default(0) // Potongan utang kasbon minggu ini
+  bonus           Float    @default(0) 
+  kasbonDeduction Float    @default(0) 
   
-  // Hasil Akhir (Take Home Pay)
-  netPay          Float    // Gaji bersih yang dicairkan
+  netPay          Float    
   
   createdAt       DateTime @default(now())
 }
@@ -249,15 +223,13 @@ model Portfolio {
   location       String
   category       String
   completionDate DateTime
-  image          String             // Gambar Utama (Thumbnail)
+  image          String             
   description    String
   createdAt      DateTime           @default(now())
   
-  // Tambahkan relasi ini:
   gallery        PortfolioGallery[] 
 }
 
-// Tambahkan model baru ini di paling bawah:
 model PortfolioGallery {
   id          String    @id @default(cuid())
   imageUrl    String

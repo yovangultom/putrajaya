@@ -20,7 +20,7 @@ export default function LayananPage() {
             slug: "perencanaan-konstruksi",
             description: "Penyusunan desain, analisis teknis, dan strategi pembangunan yang terukur untuk hasil efisien dan berkelanjutan.",
             icon: <PencilRuler size={24} />,
-            image: "/images/services/Layanan_PerencanaanKonstruksi copy.jpg",
+            image: "/images/services/Layanan_PerencanaanKonstruksi.jpg",
             delay: 0.2
         },
         {
@@ -134,6 +134,7 @@ export default function LayananPage() {
                                         src={service.image}
                                         alt={`Visualisasi layanan ${service.title} CV Putra Jaya`}
                                         fill
+                                        priority={index < 3}
                                         className="object-cover group-hover:scale-110 transition-transform duration-500"
                                         sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
                                     />
@@ -168,7 +169,7 @@ export default function LayananPage() {
             </section>
 
             <section className="py-16  bg-[#0B0C35] relative overflow-hidden border-t-4 border-[#F49414]">
-                <div className="absolute inset-0 opacity-10 bg-[url('/patterns/autocad.svg')] bg-cover mix-blend-overlay"></div>
+                {/* <div className="absolute inset-0 opacity-10 bg-[url('/patterns/autocad.svg')] bg-cover mix-blend-overlay"></div> */}
                 <div className="container mx-auto px-6 relative z-10 text-center">
                     <h2 className="text-3xl font-black text-white mb-6">Butuh Penanganan Proyek Segera?</h2>
                     <p className="text-white/90 mb-8 max-w-2xl mx-auto text-lg">

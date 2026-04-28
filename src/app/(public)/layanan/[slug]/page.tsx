@@ -29,7 +29,7 @@ const servicesDetail = {
     "perencanaan-konstruksi": {
         title: "Perencanaan Konstruksi",
         icon: <PencilRuler size={48} />,
-        image: "/images/services/Layanan_PerencanaanKonstruksi copy.jpg",
+        image: "/images/services/Layanan_PerencanaanKonstruksi.jpg",
         description: "Solusi desain dan analisis teknis sebelum proyek dimulai.",
         content: "Setiap bangunan yang kokoh dimulai dari perencanaan yang matang. Kami menyediakan jasa desain arsitektur, perhitungan struktur (RAB), hingga analisis dampak lingkungan.",
         features: ["Desain Arsitektur 2D/3D", "Perhitungan RAB", "Analisis Struktur Bangunan", "Konsultasi Teknis Lapangan"]
