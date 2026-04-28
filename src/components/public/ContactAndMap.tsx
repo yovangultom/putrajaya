@@ -75,6 +75,7 @@ export default function ContactAndMap() {
                             allowFullScreen={true}
                             loading="lazy"
                             referrerPolicy="no-referrer-when-downgrade"
+                            title="Peta Lokasi CV Putra Jaya"
                             className="grayscale-[0.2] contrast-[1.1]"
                         ></iframe>
 

@@ -65,7 +65,7 @@ export default function Hero() {
                         <div className="flex flex-wrap justify-center gap-4">
                             <Link
                                 href="/layanan"
-                                className="bg-[#F49414] hover:brightness-110 text-white px-8 py-4 rounded-2xl font-black uppercase tracking-widest flex items-center gap-3 transition-all transform hover:scale-105 shadow-xl shadow-[#F49414]/20"
+                                className="bg-[#F49414] hover:brightness-110 text-[#0B0C35] px-8 py-4 rounded-2xl font-black uppercase tracking-widest flex items-center gap-3 transition-all transform hover:scale-105 shadow-xl shadow-[#F49414]/20"
                             >
                                 Layanan Kami
                             </Link>

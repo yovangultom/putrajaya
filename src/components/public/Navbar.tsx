@@ -58,7 +58,7 @@ export default function Navbar() {
                 </div>
 
                 {/* Mobile Toggle Button */}
-                <button className="md:hidden text-[#F49414] p-2" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
+                <button className="md:hidden text-[#F49414] p-2" aria-label="Buka Menu Navigasi" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
                     {mobileMenuOpen ? <X size={28} /> : <Menu size={28} />}
                 </button>
             </nav>

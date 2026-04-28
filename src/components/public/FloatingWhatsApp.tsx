@@ -29,6 +29,7 @@ export default function FloatingWhatsApp() {
             target="_blank"
             rel="noopener noreferrer"
             onClick={handleWhatsAppClick}
+            aria-label="Chat WhatsApp Langsung (Tombol Mengambang)"
             initial={{ scale: 0, opacity: 0, y: 20 }}
             animate={{ scale: 1, opacity: 1, y: 0 }}
             whileHover={{ scale: 1.05 }} // Skala hover diturunkan sedikit agar tidak mentok pinggir layar
