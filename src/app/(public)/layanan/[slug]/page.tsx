@@ -1,22 +1,10 @@
-"use client";
-
-import { useParams, notFound } from "next/navigation";
+import { notFound } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
-import { motion } from "framer-motion";
-import {
-    ArrowLeft,
-    CheckCircle2,
-    Phone,
-    Building2,
-    PencilRuler,
-    Target,
-    FlaskConical,
-    Wrench,
-    Store
-} from "lucide-react";
+import { ArrowLeft, Building2, PencilRuler, Target, FlaskConical, Wrench, Store } from "lucide-react";
+import { AnimatedContent } from "./AnimatedDetail";
 
-// Data Detail Layanan (Simulasi Database)
+// Data Detail Layanan
 const servicesDetail = {
     "konstruksi-umum": {
         title: "Konstruksi Umum",
@@ -68,100 +56,73 @@ const servicesDetail = {
     }
 };
 
-export default function DetailLayanan() {
-    const params = useParams();
-    const slug = params.slug as string;
+// === INI ADALAH KUNCI UNTUK SKOR 100 DI DYNAMIC ROUTE ===
+// Fungsi ini memberitahu Next.js untuk mem-build keenam halaman ini menjadi HTML statis
+export function generateStaticParams() {
+    return Object.keys(servicesDetail).map((slug) => ({
+        slug: slug,
+    }));
+}
 
-    // Ambil data berdasarkan slug, jika tidak ada tampilkan 404
+// Komponen Server (Menggunakan params props, bukan useParams)
+export default async function DetailLayanan(props: { params: Promise<{ slug: string }> }) {
+
+    // 3. Ekstrak params menggunakan 'await'
+    const params = await props.params;
+    const slug = params.slug;
+
     const data = servicesDetail[slug as keyof typeof servicesDetail];
 
     if (!data) return notFound();
 
     return (
         <main className="min-h-screen bg-white">
-            {/* Header / Banner Layanan */}
+            {/* Header / Banner Layanan - MURNI HTML STATIS (Tanpa Animasi JS) */}
             <section className="bg-[#0B0C35] pt-40 pb-20 relative overflow-hidden">
-                <div className="absolute top-0 right-0 w-64 h-64 bg-[#277BBE] rounded-full blur-[100px] opacity-20 -mr-10 -mt-10"></div>
+                <div className="absolute top-0 right-0 w-64 h-64 bg-[#277BBE] rounded-full blur-[100px] opacity-20 -mr-10 -mt-10 pointer-events-none"></div>
 
                 <div className="container mx-auto px-6 relative z-10">
                     <Link
                         href="/layanan"
-                        className="inline-flex items-center gap-2 text-[#F49414] font-bold mb-8 hover:translate-x-1 transition-transform"
+                        className="inline-flex items-center gap-2 text-[#F49414] font-bold mb-8 hover:-translate-x-1 transition-transform"
                     >
                         <ArrowLeft size={20} /> Kembali ke Layanan
                     </Link>
 
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-                        <motion.div
-                            initial={{ opacity: 0, x: -30 }}
-                            animate={{ opacity: 1, x: 0 }}
-                        >
+                        {/* Bagian Teks Kiri - Langsung Muncul */}
+                        <div>
                             <div className="w-20 h-20 bg-white/10 rounded-2xl flex items-center justify-center text-[#F49414] mb-6 border border-white/20">
                                 {data.icon}
                             </div>
+                            {/* ELEMEN LCP: Bebas dari hambatan animasi! */}
                             <h1 className="text-4xl md:text-6xl font-black text-white mb-6 tracking-tighter">
                                 {data.title}
                             </h1>
                             <p className="text-xl text-white/70 leading-relaxed">
                                 {data.description}
                             </p>
-                        </motion.div>
+                        </div>
 
-                        <motion.div
-                            initial={{ opacity: 0, scale: 0.9 }}
-                            animate={{ opacity: 1, scale: 1 }}
-                            className="relative aspect-video rounded-3xl overflow-hidden border-4 border-white/10 shadow-2xl"
-                        >
+                        {/* Bagian Gambar Kanan - Diberi Priority */}
+                        <div className="relative aspect-video rounded-3xl overflow-hidden border-4 border-white/10 shadow-2xl">
                             <Image
                                 src={data.image}
                                 alt={data.title}
                                 fill
+                                priority // SANGAT PENTING: Ini adalah LCP di Mobile/Desktop
+                                sizes="(max-width: 1024px) 100vw, 50vw"
                                 className="object-cover"
                             />
-                        </motion.div>
+                        </div>
                     </div>
                 </div>
             </section>
 
-            {/* Konten Detail */}
+            {/* Konten Detail - Memanggil komponen animasi di klien */}
             <section className="py-24">
                 <div className="container mx-auto px-6">
-                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-16">
-                        {/* Deskripsi Panjang */}
-                        <div className="lg:col-span-2">
-                            <h2 className="text-3xl font-black text-[#0B0C35] mb-6">Deskripsi Pekerjaan</h2>
-                            <p className="text-slate-600 text-lg leading-relaxed mb-10 whitespace-pre-line">
-                                {data.content}
-                            </p>
-
-                            <h3 className="text-2xl font-black text-[#0B0C35] mb-6">Mengapa Memilih Kami?</h3>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                {data.features.map((feature, i) => (
-                                    <div key={i} className="flex items-center gap-3 p-4 bg-slate-50 rounded-2xl border border-slate-100">
-                                        <CheckCircle2 className="text-[#F49414] shrink-0" />
-                                        <span className="font-bold text-[#0B0C35]">{feature}</span>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-
-                        {/* Sidebar / CTA */}
-                        <div className="lg:col-span-1">
-                            <div className="bg-[#F49414] p-8 rounded-3xl text-white sticky top-32 shadow-xl shadow-[#F49414]/20">
-                                <h3 className="text-2xl font-black mb-4">Butuh Penawaran Harga?</h3>
-                                <p className="mb-8 opacity-90 leading-relaxed">
-                                    Dapatkan estimasi biaya dan konsultasi teknis gratis untuk layanan <strong>{data.title}</strong> Anda sekarang.
-                                </p>
-                                <a
-                                    href={`https://wa.me/6287888431444?text=Halo Putra Jaya, saya ingin bertanya tentang layanan ${data.title}`}
-                                    target="_blank"
-                                    className="w-full bg-[#0B0C35] text-white flex items-center justify-center gap-3 py-4 rounded-2xl font-black uppercase tracking-widest hover:scale-105 transition-all"
-                                >
-                                    <Phone size={20} fill="white" /> Chat Sekarang
-                                </a>
-                            </div>
-                        </div>
-                    </div>
+                    <AnimatedContent data={data} />
                 </div>
             </section>
         </main>
