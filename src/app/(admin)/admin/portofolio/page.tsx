@@ -7,17 +7,13 @@ import Link from "next/link";
 const prisma = new PrismaClient();
 
 export default async function AdminPortofolioPage() {
-    // Ambil data portofolio dari dev.db
     const portfolios = await prisma.portfolio.findMany({
         orderBy: { createdAt: 'desc' }
     });
 
     return (
         <div className="space-y-8 md:space-y-10 p-4">
-            {/* Memanggil Komponen Form Anda */}
             <FormInput />
-
-            {/* Kotak Daftar Portofolio */}
             <div className="bg-white rounded-xl shadow-md p-4 md:p-8 border border-slate-100 max-w-5xl mx-auto">
                 <h2 className="text-xl md:text-2xl font-black text-[#0B0C35] mb-6">Daftar Portofolio Saat Ini</h2>
 
@@ -25,9 +21,6 @@ export default async function AdminPortofolioPage() {
                     <div className="text-center py-10 text-slate-500 border border-dashed rounded-xl">Belum ada portofolio.</div>
                 ) : (
                     <>
-                        {/* ==================================================== */}
-                        {/* 1. TAMPILAN KHUSUS HP (KARTU) - Sembunyi di Desktop  */}
-                        {/* ==================================================== */}
                         <div className="grid grid-cols-1 gap-4 md:hidden">
                             {portfolios.map((item) => (
                                 <div key={item.id} className="bg-slate-50 p-4 rounded-xl border border-slate-200 flex flex-col gap-4 shadow-sm">
@@ -68,9 +61,6 @@ export default async function AdminPortofolioPage() {
                             ))}
                         </div>
 
-                        {/* ==================================================== */}
-                        {/* 2. TAMPILAN DESKTOP (TABEL) - Sembunyi di HP         */}
-                        {/* ==================================================== */}
                         <div className="hidden md:block overflow-x-auto">
                             <table className="w-full text-left border-collapse min-w-187">
                                 <thead>
