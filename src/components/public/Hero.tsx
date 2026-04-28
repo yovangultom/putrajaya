@@ -16,7 +16,6 @@ export default function Hero() {
                         alt="Konstruksi Umum"
                         fill
                         className="object-cover"
-                        priority
                         sizes="(max-width: 768px) 100vw, 33vw"
                     />
                 </div>
@@ -36,7 +35,6 @@ export default function Hero() {
                         alt="Jasa Genset"
                         fill
                         className="object-cover"
-                        priority
                         sizes="(max-width: 768px) 100vw, 33vw"
                     />
                 </div>
@@ -51,16 +49,15 @@ export default function Hero() {
 
                 {/* Kontainer Teks */}
                 <div className="max-w-4xl mx-auto mb-16 flex flex-col items-center text-center">
+                    <h1 className="text-5xl md:text-7xl font-black text-white leading-[1.1] mb-6 tracking-tighter drop-shadow-lg max-w-4xl">
+                        Solusi Teknik <span className="text-[#F49414] text-outline">Terpercaya</span> untuk Konstruksi Modern.
+                    </h1>
                     <motion.div
                         initial={{ opacity: 0, y: 30 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.6 }}
                         className="flex flex-col items-center"
                     >
-                        <h1 className="text-5xl md:text-7xl font-black text-white leading-[1.1] mb-6 tracking-tighter drop-shadow-lg max-w-4xl">
-                            Solusi Teknik <span className="text-[#F49414] text-outline">Terpercaya</span> untuk Konstruksi Modern.
-                        </h1>
-
                         <p className="text-white/80 text-lg md:text-xl mb-10 max-w-2xl mx-auto leading-relaxed drop-shadow-md font-medium">
                             Spesialis Konstruksi, Coring, Genset dan Chemical Anchor
                         </p>
