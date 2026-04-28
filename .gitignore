@@ -42,8 +42,13 @@ next-env.d.ts
 
 /src/generated/prisma
 
-# Abaikan semua isi di dalam folder uploads
+# Abaikan semua isi di folder uploads
 /public/uploads/*
-
-# KECUALI file .gitkeep (agar foldernya tetap dilacak Git)
+# Kecuali file .gitkeep dan folder projects
 !/public/uploads/.gitkeep
+!/public/uploads/projects/
+
+# Abaikan semua isi di dalam folder projects
+/public/uploads/projects/*
+# Kecuali file .gitkeep milik folder projects
+!/public/uploads/projects/.gitkeep
