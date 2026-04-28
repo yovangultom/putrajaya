@@ -34,7 +34,7 @@ export default function RecentProjectsClient({ projects }: { projects: any[] }) 
                                 initial={{ opacity: 0, y: 30 }}
                                 whileInView={{ opacity: 1, y: 0 }}
                                 viewport={{ once: true, margin: "-50px" }}
-                                transition={{ duration: 0.6, delay: index * 0.15 }} // Efek muncul bergantian
+                                transition={{ duration: 0.6, delay: index * 0.15 }}
                             >
                                 <Link href={`/proyek/${project.slug}`} className="bg-white rounded-3xl overflow-hidden shadow-lg shadow-slate-200/40 border border-slate-100 group hover:-translate-y-2 transition-all duration-300 flex flex-col h-full">
                                     <div className="relative w-full aspect-video md:aspect-[4/3] bg-slate-200 overflow-hidden shrink-0">
@@ -45,6 +45,7 @@ export default function RecentProjectsClient({ projects }: { projects: any[] }) 
                                             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                                             className="object-cover group-hover:scale-110 transition-transform duration-700 ease-in-out"
                                             priority={false}
+                                            unoptimized
                                         />
                                         <div className="absolute top-4 left-4 bg-[#F49414] text-white text-xs font-bold px-3 py-1.5 rounded-full uppercase tracking-wider shadow-md z-10">
                                             {project.category}
