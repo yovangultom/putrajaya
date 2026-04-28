@@ -28,7 +28,7 @@ export default function Navbar() {
         <header className={`fixed w-full z-50 transition-all duration-300 ${isScrolled ? "bg-white/95 backdrop-blur-md shadow-md py-3" : "bg-transparent py-5"}`}>
             <nav className="container mx-auto px-6 flex items-center justify-between">
                 {/* Logo & Brand Name */}
-                <Link href="/" className="flex items-center gap-3">
+                <Link href="/" aria-label="Kembali ke Halaman Utama" className="flex items-center gap-3">
                     {/* Pembungkus logo agar tetap kontras saat belum di-scroll */}
                     <div className={`p-1.5 rounded-xl transition-colors ${isScrolled ? "bg-transparent" : "bg-white/10 backdrop-blur-sm"}`}>
                         <Image
