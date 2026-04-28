@@ -47,18 +47,12 @@ export default function ProyekClient({ portfolios }: { portfolios: any[] }) {
                 </div>
             </section>
 
-            {/* === SECTION 2: GRID GALERI PROYEK DENGAN FILTER === */}
             <section className="py-20 -mt-10 relative z-20">
                 <div className="container mx-auto px-6">
 
-                    {/* BAGIAN FILTER TOMBOL YANG DIPERBAIKI */}
                     {portfolios.length > 0 && (
                         <div className="relative mb-12">
-                            {/* Perubahan Utama:
-                                1. overflow-x-auto untuk mobile scroll
-                                2. md:flex-wrap untuk kembali normal di desktop
-                                3. [&::-webkit-scrollbar]:hidden untuk menyembunyikan scrollbar bawaan
-                            */}
+
                             <div className="flex overflow-x-auto md:flex-wrap gap-3 pb-4 md:pb-0 justify-start md:justify-center lg:justify-start snap-x scroll-smooth [&::-webkit-scrollbar]:hidden [-ms-overflow-style:'none'] [scrollbar-width:'none'] w-full">
                                 {categories.map((category) => (
                                     <button
@@ -74,7 +68,6 @@ export default function ProyekClient({ portfolios }: { portfolios: any[] }) {
                                 ))}
                             </div>
 
-                            {/* Indikator gradien bayangan di ujung kanan khusus mobile agar user tahu bisa di-scroll */}
                             <div className="absolute right-0 top-0 bottom-4 w-12 bg-gradient-to-l from-slate-50 to-transparent pointer-events-none md:hidden"></div>
                         </div>
                     )}
@@ -110,6 +103,7 @@ export default function ProyekClient({ portfolios }: { portfolios: any[] }) {
                                                     className="object-cover group-hover:scale-110 transition-transform duration-700 ease-in-out"
                                                     sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
                                                     priority={index < 6}
+                                                    unoptimized
                                                 />
                                                 <div className="absolute top-4 left-4 bg-[#F49414] text-white text-xs font-bold px-3 py-1.5 rounded-full uppercase tracking-wider shadow-md">
                                                     {project.category}
