@@ -288,7 +288,7 @@ export default async function KeuanganPage({ searchParams }: { searchParams: Pro
                                         <div className="bg-green-50 text-green-600 p-3 rounded-2xl"><ArrowUpRight size={24} /></div>
                                     </div>
                                     <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Total Kas Masuk</p>
-                                    <h3 className="text-2xl font-black text-slate-900">{formatRp(totalPemasukan)}</h3>
+                                    <h3 className="text-2xl font-black text-green-600">{formatRp(totalPemasukan)}</h3>
                                 </div>
                             </div>
 
