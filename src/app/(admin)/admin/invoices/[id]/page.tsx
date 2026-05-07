@@ -339,21 +339,39 @@ export default async function InvoicePrintPage({ params, searchParams }: { param
                     TERIMAKASIH ATAS KERJASAMA ANDA
                 </div>
 
-                <div className="flex justify-between text-[11px] sm:text-xs md:text-sm print:text-[10pt] text-black px-2 sm:px-10 print:px-10 mt-10 md:mt-16 print:mt-16 print:break-inside-avoid">
-                    <div className="text-center w-1/2">
-                        <p>Tanda Terima, </p>
-                        <br /><br /><br />
-                        <div className="h-16 md:h-20 print:h-20 w-full my-1"></div>
-                        <p>( ____________________ )</p>
+                <div className="flex justify-between text-[11px] sm:text-xs md:text-sm print:text-[10pt] text-black px-2 sm:px-10 print:px-10 mt-12 md:mt-16 print:mt-12 print:break-inside-avoid">
+
+                    {/* BAGIAN KIRI: TANDA TERIMA */}
+                    <div className="text-center w-1/2 flex flex-col items-center justify-between">
+                        {/* Jarak print diubah ke print:mb-16 agar sejajar dengan tinggi ttd yang diperkecil */}
+                        <p className="mb-16 md:mb-20 print:mb-16">Tanda Terima,</p>
+                        <div className="w-28 md:w-40 print:w-32 border-b border-black"></div>
                     </div>
-                    <div className="text-center w-1/2">
-                        <p>Hormat Kami,</p>
-                        <div className="h-16 md:h-20 print:h-20 w-full flex justify-center items-center my-1">
-                            <img src={currentSignee.image} alt="ttd" className="max-h-full max-w-[120px] print:max-w-[140px] object-contain" />
+
+                    {/* BAGIAN KANAN: HORMAT KAMI (TTD) */}
+                    <div className="text-center w-1/2 flex flex-col items-center justify-end">
+                        <p className="relative z-0">Hormat Kami,</p>
+
+                        {/* CONTAINER TANDA TANGAN 
+                            Web: Tetap menggunakan md:w-36 md:h-24
+                            Print: Diperkecil drastis menjadi print:w-24 print:h-16
+                            Margin print disesuaikan menjadi print:-my-1 agar pas
+                        */}
+                        <div className="relative w-28 h-18 md:w-36 md:h-24 print:w-24 print:h-16 mx-auto -my-2 md:-my-4 print:-my-1 z-10 pointer-events-none flex items-center justify-center">
+                            <img
+                                src={currentSignee.image}
+                                alt={`Tanda Tangan ${currentSignee.name}`}
+                                className="w-full h-full object-contain"
+                                style={{ mixBlendMode: 'multiply' }}
+                            />
                         </div>
-                        <p className="font-bold underline leading-tight">{currentSignee.name}</p>
-                        <p className="leading-tight">(CV Putra Jaya)</p>
+
+                        <div className="relative z-0 leading-tight">
+                            <p className="font-bold underline print:text-[10pt]">{currentSignee.name}</p>
+                            <p className="print:text-[10pt]">(CV Putra Jaya)</p>
+                        </div>
                     </div>
+
                 </div>
 
             </div>

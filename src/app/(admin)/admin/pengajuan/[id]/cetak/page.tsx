@@ -197,20 +197,24 @@ export default async function PenawaranPrintPage({ params, searchParams }: { par
 
                 <p className="text-[11px] sm:text-xs md:text-sm print:text-[10pt] mb-10 md:mb-12 print:mb-12  leading-relaxed">Demikian pengajuan harga {project.title} kami sampaikan. Atas perhatian dan kerja sama Bapak/Ibu, kami ucapkan terimakasih. </p>
 
-                <div className="flex justify-end pr-4 md:pr-10 print:pr-10 text-[11px] sm:text-xs md:text-sm print:text-[10pt] print:break-inside-avoid">
-                    <div className="text-center relative">
-                        <p className="mb-1 print:mb-1">Hormat Kami,</p>
+                <div className="flex justify-end pr-4 md:pr-10 print:pr-10 text-[11px] sm:text-xs md:text-sm print:text-[10pt] print:break-inside-avoid mt-8 md:mt-12 print:mt-10">
+                    <div className="text-center flex flex-col items-center justify-end relative">
+                        <p className="relative z-0">Hormat Kami,</p>
 
-                        <div className="relative w-24 h-16 md:w-32 md:h-20 print:w-28 print:h-20 mx-auto">
+
+                        <div className="relative w-32 h-20 md:w-40 md:h-28 print:w-40 print:h-28 mx-auto -my-3 md:-my-5 print:-my-5 z-10 pointer-events-none flex items-center justify-center">
                             <img
                                 src={currentSignee.image}
                                 alt={`Tanda Tangan ${currentSignee.name}`}
-                                className="w-full h-full object-contain"
+                                className="max-w-full max-h-full object-contain"
+                                style={{ mixBlendMode: 'multiply' }}
                             />
                         </div>
 
-                        <p className="font-bold underline print:text-[10pt]">{currentSignee.name}</p>
-                        <p className="print:text-[10pt]">(CV Putra Jaya)</p>
+                        <div className="relative z-0">
+                            <p className="font-bold underline leading-tight print:text-[10pt]">{currentSignee.name}</p>
+                            <p className="leading-tight print:text-[10pt]">(CV Putra Jaya)</p>
+                        </div>
                     </div>
                 </div>
             </div>
