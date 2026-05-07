@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { Save, FileCheck, Banknote, Printer, Calculator, AlertCircle } from "lucide-react";
+import { Save, Banknote, Printer, Calculator, AlertCircle } from "lucide-react";
 import { simpanSlipGaji } from "./actions";
 import Link from "next/link";
 
@@ -10,7 +10,7 @@ interface WorkerInput {
     bonus: number;
     kasbon: number;
     isSaved: boolean;
-    payslipId?: string | null; // Tambahkan ini agar TS tidak protes
+    payslipId?: string | null;
 }
 
 export default function PayrollForm({
@@ -24,7 +24,6 @@ export default function PayrollForm({
 }) {
     const [isPending, setIsPending] = useState(false);
 
-    // PERBAIKAN: Berikan tipe data WorkerInput pada useState
     const [inputs, setInputs] = useState<Record<string, WorkerInput>>(() => {
         const initialState: Record<string, WorkerInput> = {};
         payrollData.forEach(p => {
@@ -95,7 +94,7 @@ export default function PayrollForm({
                                 <th className="px-6 py-4">Bonus (+)</th>
                                 <th className="px-6 py-4 text-red-400">Kasbon (-)</th>
                                 <th className="px-6 py-4">Total Gaji</th>
-                                <th className="px-6 py-4 text-right">Aksi</th>
+                                <th className="px-6 py-4 text-right">Status / Aksi</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-100">
@@ -126,13 +125,13 @@ export default function PayrollForm({
                                         </td>
                                         <td className="px-6 py-4 text-right">
                                             {input.isSaved ? (
-                                                <div className="flex justify-end gap-2">
+                                                <div className="flex justify-end items-center gap-2">
+                                                    <span className="px-3 py-2 bg-green-100 text-green-700 rounded-lg border border-green-200 text-[10px] font-black uppercase tracking-widest flex items-center">
+                                                        Sudah Dibayarkan
+                                                    </span>
                                                     <Link href={`/admin/penggajian/${input.payslipId || data.payslipId}/cetak`} target="_blank" className="p-2 bg-white text-slate-600 border border-slate-200 rounded-lg hover:bg-slate-50 transition-all shadow-sm flex items-center justify-center" title="Cetak Slip">
                                                         <Printer size={16} />
                                                     </Link>
-                                                    <span className="p-2 bg-green-100 text-green-700 rounded-lg border border-green-200" title="Terbayar">
-                                                        <FileCheck size={16} />
-                                                    </span>
                                                 </div>
                                             ) : (
                                                 <button onClick={() => handleSave(data.workerId, data.basePay, data.overtimePay, data.totalDays, data.totalOvertime)}
@@ -169,10 +168,12 @@ export default function PayrollForm({
                                 <div className="flex gap-2">
                                     {input.isSaved ? (
                                         <>
+                                            <div className="flex-1 bg-green-100 text-green-700 py-2.5 rounded-xl border border-green-200 text-[10px] font-black uppercase tracking-widest flex items-center justify-center">
+                                                Sudah Dibayarkan
+                                            </div>
                                             <Link href={`/admin/penggajian/${input.payslipId || data.payslipId}/cetak`} target="_blank" className="flex-1 bg-white border border-slate-200 text-slate-600 py-2.5 rounded-xl text-[10px] font-bold flex items-center justify-center gap-2">
                                                 <Printer size={14} /> Cetak Slip
                                             </Link>
-                                            <div className="flex-1 bg-green-100 text-green-700 py-2.5 rounded-xl text-[10px] font-bold flex items-center justify-center gap-2"><FileCheck size={14} /> Terbayar</div>
                                         </>
                                     ) : (
                                         <button onClick={() => handleSave(data.workerId, data.basePay, data.overtimePay, data.totalDays, data.totalOvertime)}

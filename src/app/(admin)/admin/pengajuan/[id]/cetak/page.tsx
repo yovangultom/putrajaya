@@ -63,18 +63,26 @@ export default async function PenawaranPrintPage({ params, searchParams }: { par
     return (
         <div className="min-h-screen bg-slate-50 py-4 md:py-8 px-2 md:px-0 print:py-0 print:px-0 print:bg-white text-black font-['Arial'] print:block print:text-black">
 
-            {/* PERBAIKAN CSS: Menghapus 'div' dari selektor height: auto agar container TTD tidak hancur */}
             <style dangerouslySetInnerHTML={{
                 __html: `
-                    @media print {
-                        html, body, main { overflow: visible !important; height: auto !important; }
-                        header, nav, aside, [class*="navbar"], [class*="Sidebar"], [class*="nav"] { display: none !important; }
-                        @page { 
-                            size: A4 portrait;
-                            margin: 1cm; 
-                        }
-                    }
-                `
+        @media print {
+            html, body, main { overflow: visible !important; height: auto !important; background-color: #fff !important; }
+            header, nav, aside, [class*="navbar"], [class*="Sidebar"], [class*="nav"] { display: none !important; }
+            
+            /* Trik Memaksa Browser (Termasuk iOS) Menghilangkan Header/Footer Bawaan */
+            @page { 
+                size: A4 portrait;
+                margin: 0mm !important; /* Margin 0 akan mematikan tempat untuk Header/Footer browser */
+            }
+            
+            /* Karena margin kertas 0, kita beri padding di dalam dokumennya agar teks tidak menabrak ujung kertas */
+            #dokumen-cetak {
+                padding: 1cm !important;
+                margin: 0 !important;
+                box-shadow: none !important;
+            }
+        }
+    `
             }} />
 
             <div className="w-full max-w-[21cm] mx-auto mb-4 md:mb-6 flex flex-wrap justify-between items-center print:hidden px-2 md:px-0 gap-3">
@@ -88,12 +96,15 @@ export default async function PenawaranPrintPage({ params, searchParams }: { par
                     <Link href={`?ttd=ratno`} replace className={`px-2 md:px-3 py-1.5 md:py-2 rounded-lg text-[9px] md:text-[10px] font-black uppercase tracking-widest transition-colors ${ttd === 'ratno' ? 'bg-blue-600 text-white shadow-sm' : 'bg-slate-50 text-slate-500 hover:bg-slate-100'}`}>Ratno Palupi</Link>
                 </div>
 
-                <div className="shrink-0">
+                {/* PERBAIKAN: Menggabungkan kedua tombol berdampingan */}
+                <div className="shrink-0 flex items-center gap-2">
                     <PrintButton />
+
+
                 </div>
             </div>
 
-            <div className="bg-white w-full max-w-[21cm] min-h-auto md:min-h-[29.7cm] mx-auto p-4 sm:p-8 md:p-10 shadow-2xl print:shadow-none print:p-0 print:max-w-none print:min-h-0 print:block relative">
+            <div id="dokumen-cetak" className="bg-white w-full max-w-[21cm] min-h-[29.7cm] mx-auto p-4 sm:p-8 md:p-10 shadow-2xl print:shadow-none print:p-0 print:max-w-none print:min-h-0 print:block relative">
 
                 {/* Header Kop Surat */}
                 <div className="flex items-center sm:items-start gap-1 md:gap-8 border-b-4 border-black pb-4 md:pb-5 mb-6 md:mb-8 print:pb-1 print:mb-1 print:border-b-2">
@@ -147,7 +158,7 @@ export default async function PenawaranPrintPage({ params, searchParams }: { par
                 {/* Tabel Penawaran */}
                 <table className="w-full text-[9px] sm:text-xs md:text-sm print:text-[10pt] border-collapse mb-2 border border-black">
                     <thead>
-                        <tr className="border-b border-black text-center font-bold bg-gray-50 print:bg-transparent">
+                        <tr className="border-b border-black text-center font-bold bg-gray-50 print:bg-transparent print:px-0">
                             <th className="border-r border-black py-1.5 md:py-1 w-6 md:w-10 print:w-10 print:py-0">No.</th>
                             <th className="border-r border-black py-1.5 md:py-1 print:py-0">Deskripsi Pekerjaan</th>
                             <th className="border-r border-black py-1.5 md:py-1  print:py-0 w-14 md:w-24 print:w-24" colSpan={2}>Volume</th>
@@ -158,22 +169,22 @@ export default async function PenawaranPrintPage({ params, searchParams }: { par
                     <tbody>
                         {project.pengajuanItems.map((item, index) => (
                             <tr key={item.id} className="border-b border-black">
-                                <td className="border-r border-black text-center print:py-0 py-1.5 md:py-1 px-1 align-middle">{index + 1}</td>
-                                <td className="border-r border-black px-1.5 md:px-3 py-1.5 md:py-1 print:py-0 align-middle leading-relaxed">{item.description}</td>
-                                <td className="border-r border-black border-dashed text-center w-6 md:w-10 print:py-0 print:w-10 py-1.5 md:py-1 align-middle">{item.qty}</td>
-                                <td className="border-r border-black text-center w-8 md:w-12 print:w-12 py-1.5 print:py-0 md:py-1 align-middle">{item.unit}</td>
-                                <td className="border-r border-black px-1.5 md:px-3 py-1.5 md:py-1 print:py-0 align-middle">
-                                    <div className="flex justify-between w-full "><span>Rp</span><span>{item.price.toLocaleString('id-ID')}</span></div>
+                                <td className="border-r border-black text-center print:py-0 py-1.5 md:py-1 px-1 align-middle print:text-[10pt]">{index + 1}</td>
+                                <td className="border-r border-black px-1.5 md:px-3 py-1.5 md:py-1 print:py-0 align-middle leading-relaxed print:text-[10pt]">{item.description}</td>
+                                <td className="border-r border-black border-dashed text-center w-6 md:w-10 print:py-0 print:w-10 py-1.5 md:py-1 align-middle print:text-[10pt]">{item.qty}</td>
+                                <td className="border-r border-black text-center w-8 md:w-12 print:w-12 py-1.5 print:py-0 md:py-1 align-middle print:text-[10pt]">{item.unit}</td>
+                                <td className="border-r border-black px-1.5 md:px-3 py-1.5 md:py-1 print:py-0 align-middle print:text-[10pt]">
+                                    <div className="flex justify-between w-full  print:text-[10pt]"><span>Rp</span><span>{item.price.toLocaleString('id-ID')}</span></div>
                                 </td>
-                                <td className="px-1.5 md:px-3 py-1.5 md:py-1 print:py-0 font-bold align-middle">
-                                    <div className="flex justify-between w-full"><span>Rp</span><span>{(item.qty * item.price).toLocaleString('id-ID')}</span></div>
+                                <td className="px-1.5 md:px-3 py-1.5 md:py-1 print:py-0 font-bold align-middle print:text-[10pt]">
+                                    <div className="flex justify-between w-full print:text-[10pt]"><span>Rp</span><span>{(item.qty * item.price).toLocaleString('id-ID')}</span></div>
                                 </td>
                             </tr>
                         ))}
-                        <tr className="font-bold text-[10px] sm:text-sm md:text-base print:text-[11pt] bg-gray-50 print:bg-transparent">
+                        <tr className="font-bold text-[10px] sm:text-sm md:text-base print:text-[10pt] bg-gray-50 print:bg-transparent">
                             <td colSpan={5} className="border-r border-black py-1.5 md:py-1 px-2 text-center sm:text-right print:text-center print:py-0 align-middle">TOTAL</td>
                             <td className="py-1.5 md:py-1 px-1.5 md:px-3 print:py-0 align-middle">
-                                <div className="flex justify-between w-full"><span>Rp</span><span>{totalEstimasi.toLocaleString('id-ID')}</span></div>
+                                <div className="flex justify-between w-full align-middle"><span>Rp</span><span>{totalEstimasi.toLocaleString('id-ID')}</span></div>
                             </td>
                         </tr>
                     </tbody>
@@ -181,16 +192,15 @@ export default async function PenawaranPrintPage({ params, searchParams }: { par
 
                 <div className="flex flex-col sm:flex-row sm:gap-4 text-[11px] sm:text-xs md:text-sm print:text-sm text-black mb-8 md:mb-10 mt-3">
                     <div className="font-bold w-full sm:w-24 print:w-13">Terbilang:</div>
-                    <div className="font-bold italic mt-1 sm:mt-0 bg-slate-100 print:bg-transparent px-2 py-1 sm:p-0 rounded-md sm:rounded-none">{terbilang(totalEstimasi)} Rupiah</div>
+                    <div className="font-bold italic mt-1 sm:mt-0  print:bg-transparent px-2 py-1 sm:p-0 rounded-md sm:rounded-none">{terbilang(totalEstimasi)} Rupiah</div>
                 </div>
 
-                <p className="text-[11px] sm:text-xs md:text-sm print:text-[11pt] mb-10 md:mb-12 print:mb-12  leading-relaxed">Demikian pengajuan harga {project.title} kami sampaikan. Atas perhatian dan kerja sama Bapak/Ibu, kami ucapkan terimakasih. </p>
+                <p className="text-[11px] sm:text-xs md:text-sm print:text-[10pt] mb-10 md:mb-12 print:mb-12  leading-relaxed">Demikian pengajuan harga {project.title} kami sampaikan. Atas perhatian dan kerja sama Bapak/Ibu, kami ucapkan terimakasih. </p>
 
-                <div className="flex justify-end pr-4 md:pr-10 print:pr-10 text-[11px] sm:text-xs md:text-sm print:text-[11pt] print:break-inside-avoid">
+                <div className="flex justify-end pr-4 md:pr-10 print:pr-10 text-[11px] sm:text-xs md:text-sm print:text-[10pt] print:break-inside-avoid">
                     <div className="text-center relative">
                         <p className="mb-1 print:mb-1">Hormat Kami,</p>
 
-                        {/* PERBAIKAN: Menggunakan tag img standar HTML yang tidak terkena efek lazy loading / layout shift Next.js */}
                         <div className="relative w-24 h-16 md:w-32 md:h-20 print:w-28 print:h-20 mx-auto">
                             <img
                                 src={currentSignee.image}
@@ -199,8 +209,8 @@ export default async function PenawaranPrintPage({ params, searchParams }: { par
                             />
                         </div>
 
-                        <p className="font-bold underline">{currentSignee.name}</p>
-                        <p>(CV Putra Jaya)</p>
+                        <p className="font-bold underline print:text-[10pt]">{currentSignee.name}</p>
+                        <p className="print:text-[10pt]">(CV Putra Jaya)</p>
                     </div>
                 </div>
             </div>

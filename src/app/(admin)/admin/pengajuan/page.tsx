@@ -1,6 +1,7 @@
 // src/app/(admin)/admin/pengajuan/page.tsx
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
+import DeleteProjectButton from "./DeleteProjectButton";
 import { Plus, Eye, Printer, FileCheck, Receipt } from "lucide-react";
 
 // 1. Tambahkan Kamus Penerjemah
@@ -19,8 +20,10 @@ export default async function DaftarPengajuanPage() {
         include: {
             user: true,
             pengajuanItems: true,
-            invoice: true,
-            bap: true
+            invoices: true,
+            baps: true,
+            termins: { orderBy: { id: 'asc' } }, // <-- Tambahkan ini
+            contract: true   // <-- Tambahkan ini
         }
     });
 
@@ -45,8 +48,8 @@ export default async function DaftarPengajuanPage() {
             {/* --- HEADER --- */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 md:mb-8">
                 <div>
-                    <h1 className="text-2xl md:text-3xl font-bold text-slate-900 tracking-tight">Data Pengajuan Proyek</h1>
-                    <p className="text-xs md:text-sm text-slate-500 mt-1">Pantau seluruh riwayat pekerjaan dari Penawaran hingga Invoice.</p>
+                    <h1 className="text-xl md:text-2xl font-bold text-black tracking-tight">DATA PENGAJUAN PROYEK</h1>
+                    <p className="text-xs md:text-sm text-slate-500 mt-1  font-medium">Pantau seluruh riwayat pekerjaan dari Penawaran hingga Invoice.</p>
                 </div>
                 <Link
                     href="/admin/pengajuan/baru"
@@ -95,6 +98,7 @@ export default async function DaftarPengajuanPage() {
 
                                 {/* Baris 3: Tombol Aksi */}
                                 <div className="flex items-center justify-end gap-2 pt-1">
+                                    <DeleteProjectButton projectId={item.id} projectTitle={item.title} />
                                     <Link href={`/admin/pengajuan/${item.id}/cetak`} target="_blank" className="p-2.5 bg-amber-50 text-amber-600 rounded-xl hover:bg-amber-600 hover:text-white transition-all border border-amber-100">
                                         <Printer size={18} />
                                     </Link>
@@ -107,7 +111,7 @@ export default async function DaftarPengajuanPage() {
                                             <Link href={`/admin/pengajuan/${item.id}/bap/cetak`} target="_blank" className="p-2.5 bg-teal-50 text-teal-600 rounded-xl hover:bg-teal-600 hover:text-white transition-all border border-teal-100">
                                                 <FileCheck size={18} />
                                             </Link>
-                                            <Link href={`/admin/invoices/${item.invoice?.id}`} target="_blank" className="p-2.5 bg-blue-50 text-blue-600 rounded-xl hover:bg-blue-600 hover:text-white transition-all border border-blue-100">
+                                            <Link href={`/admin/invoices/${item.invoices[0]?.id}`} target="_blank" className="p-2.5 bg-blue-50 text-blue-600 rounded-xl hover:bg-blue-600 hover:text-white transition-all border border-blue-100">
                                                 <Receipt size={18} />
                                             </Link>
                                         </>
@@ -166,6 +170,7 @@ export default async function DaftarPengajuanPage() {
                                             </td>
                                             <td className="px-6 py-4">
                                                 <div className="flex items-center justify-end gap-2">
+                                                    <DeleteProjectButton projectId={item.id} projectTitle={item.title} />
                                                     <Link href={`/admin/pengajuan/${item.id}/cetak`} target="_blank" title="Cetak Penawaran Harga" className="p-2 bg-amber-50 text-amber-600 rounded-lg hover:bg-amber-600 hover:text-white transition-all border border-amber-100">
                                                         <Printer size={16} />
                                                     </Link>
@@ -178,7 +183,7 @@ export default async function DaftarPengajuanPage() {
                                                             <Link href={`/admin/pengajuan/${item.id}/bap/cetak`} target="_blank" title="Cetak BAP" className="p-2 bg-teal-50 text-teal-600 rounded-lg hover:bg-teal-600 hover:text-white transition-all border border-teal-100">
                                                                 <FileCheck size={16} />
                                                             </Link>
-                                                            <Link href={`/admin/invoices/${item.invoice?.id}`} target="_blank" title="Cetak Invoice" className="p-2 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-600 hover:text-white transition-all border border-blue-100">
+                                                            <Link href={`/admin/invoices/${item.invoices[0]?.id}`} target="_blank" title="Cetak Invoice" className="p-2 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-600 hover:text-white transition-all border border-blue-100">
                                                                 <Receipt size={16} />
                                                             </Link>
                                                         </>

@@ -6,25 +6,33 @@ import PrintButton from "@/app/(admin)/admin/invoices/[id]/PrintButton";
 import Image from "next/image";
 import { Metadata } from "next";
 
-export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
+export async function generateMetadata({ params, searchParams }: { params: Promise<{ id: string }>, searchParams: Promise<{ terminId?: string }> }): Promise<Metadata> {
     const { id } = await params;
+    const sp = await searchParams;
+
+    // Cari project dan BAP yang sesuai dengan terminId (atau ambil semua baps)
     const project = await prisma.project.findUnique({
         where: { id },
-        include: { bap: true }
+        include: {
+            baps: sp.terminId ? { where: { terminId: sp.terminId } } : true
+        }
     });
 
-    // Nama file: BAP-008-BAP-PJ-IV-2026-Bapak-Iya.pdf
-    const safeBapNumber = project?.bap?.bapNumber.replace(/\//g, "-") || "BAP";
+    // Ambil nomor BAP dari array baps index pertama (jika ada)
+    const bapNumber = project?.baps?.[0]?.bapNumber || "BAP";
+    const safeBapNumber = bapNumber.replace(/\//g, "-");
+
     return {
-        title: `BAP-${safeBapNumber}-${project?.clientName}`,
+        title: `BAP-${safeBapNumber}-${project?.clientName || "Proyek"}`,
     };
 }
 
-export default async function BapPrintPage({ params, searchParams }: { params: Promise<{ id: string }>, searchParams: Promise<{ ttd?: string }> }) {
+export default async function BapPrintPage({ params, searchParams }: { params: Promise<{ id: string }>, searchParams: Promise<{ ttd?: string, terminId?: string }> }) {
 
     const { id } = await params;
     const sp = await searchParams;
-    const ttd = sp.ttd || "eka"; // Default adalah Eka
+    const ttd = sp.ttd || "eka";
+    const terminId = sp.terminId; // <-- Tangkap ID Termin
 
     // KONFIGURASI PENANDATANGAN CV PUTRA JAYA
     const signeeData = {
@@ -43,14 +51,15 @@ export default async function BapPrintPage({ params, searchParams }: { params: P
     const project = await prisma.project.findUnique({
         where: { id: id },
         include: {
-            bap: {
+            baps: { // <-- Ubah menjadi baps (jamak)
+                where: { terminId: terminId }, // <-- Filter hanya BAP milik termin ini
                 include: { items: true, attachments: true }
             }
         }
     });
 
-    if (!project || !project.bap) notFound();
-    const bap = project.bap;
+    if (!project || !project.baps || project.baps.length === 0) notFound();
+    const bap = project.baps[0];
 
     const formatTanggalLengkap = (date: Date) => {
         return date.toLocaleDateString("id-ID", { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
@@ -112,8 +121,8 @@ export default async function BapPrintPage({ params, searchParams }: { params: P
                     </div>
 
                     <div className="text-center mb-8 print:m-0">
-                        <h1 className="text-lg md:text-xl font-bold underline mb-1 print:text-[14pt] print:mt-1">BERITA ACARA PENYELESAIAN PEKERJAAN</h1>
-                        <p className="text-sm print:text-[10pt] print:m-0">No: {bap.bapNumber}</p>
+                        <h1 className="text-lg md:text-xl font-bold   print:text-[14pt] print:mt-1">BERITA ACARA PENYELESAIAN PEKERJAAN</h1>
+                        <p className="text-sm print:text-[10pt] print:m-0 print:p-0">No: {bap.bapNumber}</p>
                     </div>
 
                     <div className="text-sm text-justify leading-relaxed mb-6 print:text-[11pt] print:my-2">
@@ -174,12 +183,12 @@ export default async function BapPrintPage({ params, searchParams }: { params: P
                                     <img
                                         src={currentSignee.image}
                                         alt={`Tanda Tangan ${currentSignee.name}`}
-                                        className="h-16 md:h-20 print:h-16 object-contain"
+                                        className="h-16 md:h-20 print:h-18 object-contain"
 
                                     />
                                 </div>
-                                <div className="relative z-10 font-bold underline leading-tight">{currentSignee.name}</div>
-                                <div className="relative z-10 text-[11px] print:text-[10pt] leading-tight mt-0.5">Quality Control</div>
+                                <div className="relative z-10 font-bold underline leading-tight print:p-0">{currentSignee.name}</div>
+
                             </td>
 
                             {/* Kotak Tanda Tangan Klien */}

@@ -15,30 +15,18 @@ async function main() {
 
   // 1. Buat Akun Super Admin
   const admin = await prisma.user.upsert({
-    where: { email: "admin@putrajaya.com" },
+    where: { email: "admin@putrajaya.co.id" },
     update: {},
     create: {
       name: "Super Admin Putrajaya",
-      email: "admin@putrajaya.com",
+      email: "admin@putrajaya.co.id",
       password: hashedPassword,
       role: "SUPER_ADMIN",
     },
   });
 
-  // 2. Buat Akun Finance
-  const finance = await prisma.user.upsert({
-    where: { email: "finance@putrajaya.com" },
-    update: {},
-    create: {
-      name: "Tim Keuangan",
-      email: "finance@putrajaya.com",
-      password: hashedPassword,
-      role: "FINANCE",
-    },
-  });
-
   console.log("✅ Database berhasil di-seed!");
-  console.log({ admin, finance });
+  console.log({ admin });
 }
 
 main()

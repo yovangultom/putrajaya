@@ -37,8 +37,8 @@ export default async function DashboardPage() {
   return (
     <div className="p-4 md:p-8 bg-slate-50 min-h-screen">
       <div className="mb-8">
-        <h1 className="text-2xl md:text-3xl font-black text-slate-900 uppercase tracking-tight">Dashboard Admin</h1>
-        <p className="text-slate-500 mt-1 text-sm italic">Ringkasan operasional CV Putra Jaya.</p>
+        <h1 className="text-xl md:text-2xl font-bold text-black uppercase tracking-tight">Dashboard Admin</h1>
+        <p className="text-xs md:text-sm text-slate-500 mt-1  font-medium">Ringkasan operasional CV Putra Jaya.</p>
       </div>
 
       {/* PERUBAHAN DI SINI: flex-col-reverse diubah menjadi flex-col */}

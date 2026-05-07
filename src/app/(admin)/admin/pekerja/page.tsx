@@ -16,10 +16,10 @@ export default async function DaftarPekerjaPage() {
             {/* Header */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 md:mb-8">
                 <div>
-                    <h1 className="text-2xl md:text-3xl font-black text-slate-900 tracking-tight flex items-center gap-3">
-                        <Users className="text-blue-600 w-8 h-8" /> MASTER PEKERJA
+                    <h1 className="text-xl md:text-2xl font-bold text-black tracking-tight flex items-center gap-3">
+                        MASTER PEKERJA
                     </h1>
-                    <p className="text-xs md:text-sm text-slate-500 mt-1 uppercase tracking-widest font-medium">
+                    <p className="text-xs md:text-sm text-slate-500 mt-1 font-medium">
                         Kelola data tukang, kenek, dan standar gaji
                     </p>
                 </div>

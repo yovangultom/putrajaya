@@ -2,7 +2,7 @@ import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { Wallet, TrendingUp, TrendingDown, Landmark, ArrowDownRight, ArrowUpRight, CalendarDays, Search, PieChart, Plus, X, Building2, HandCoins } from "lucide-react";
+import { Wallet, TrendingUpDown, TrendingDown, TrendingUp, Landmark, ArrowDownRight, ArrowUpRight, CalendarDays, Search, PieChart, Plus, X, Building2, HandCoins } from "lucide-react";
 
 export default async function KeuanganPage({ searchParams }: { searchParams: Promise<{ start?: string, end?: string, view?: string, modal?: string }> }) {
     const params = await searchParams;
@@ -31,7 +31,7 @@ export default async function KeuanganPage({ searchParams }: { searchParams: Pro
     endDate.setHours(23, 59, 59, 999);
 
     // =========================================================================
-    // SERVER ACTION: Fungsi Simpan Pemasukan (Baru) & Pengeluaran
+    // SERVER ACTION: Fungsi Simpan Pemasukan & Pengeluaran Manual
     // =========================================================================
     async function simpanPemasukan(formData: FormData) {
         "use server";
@@ -64,24 +64,36 @@ export default async function KeuanganPage({ searchParams }: { searchParams: Pro
     }
 
     // =========================================================================
-    // 1. DATA KAS MASUK (LABA PROYEK + PEMASUKAN LAINNYA)
+    // 1. DATA KAS MASUK 
     // =========================================================================
-    const paidProjects = await prisma.project.findMany({
+    // A. Proyek Non-Termin (Lunas di akhir)
+    const paidSingleProjects = await prisma.project.findMany({
         where: {
             status: "PAID",
+            paymentType: { not: "TERMIN" }, // Hanya ambil yang NON-TERMIN
             ...(!isRingkasan ? { updatedAt: { gte: startDate, lte: endDate } } : {})
         },
         include: { pengajuanItems: true, expenses: true }
     });
 
-    // Ambil Data Pemasukan Bebas
+    // B. Proyek Termin (Ambil dari Invoice Termin yang sudah Lunas)
+    const paidTerminInvoices = await prisma.invoice.findMany({
+        where: {
+            status: "PAID",
+            project: { paymentType: "TERMIN" }, // Hanya invoice dari proyek TERMIN
+            ...(!isRingkasan ? { date: { gte: startDate, lte: endDate } } : {})
+        },
+        include: { project: true, termin: true }
+    });
+
+    // C. Pemasukan Bebas (Manual Input)
     const companyIncomes = await prisma.companyIncome.findMany({
         where: !isRingkasan ? { date: { gte: startDate, lte: endDate } } : {},
     });
 
-    // Gabungkan Keduanya
+    // Gabungkan Ketiganya
     const kasMasukData = [
-        ...paidProjects.map(proj => {
+        ...paidSingleProjects.map(proj => {
             const grossTotal = proj.pengajuanItems.reduce((sum, item) => sum + (item.qty * item.price), 0);
             const projectExpenses = proj.expenses.reduce((sum, exp) => sum + exp.amount, 0);
             const netProfit = grossTotal - projectExpenses;
@@ -97,6 +109,17 @@ export default async function KeuanganPage({ searchParams }: { searchParams: Pro
                 badge: 'bg-green-100 text-green-700'
             };
         }),
+        ...paidTerminInvoices.map(inv => ({
+            id: `inv-${inv.id}`,
+            date: inv.date,
+            title: `Pembayaran ${inv.termin?.name || 'Termin'} (${inv.project.clientName})`,
+            subtitle: `Proyek: ${inv.project.title}`,
+            gross: inv.amount,
+            expense: 0, // Beban termin dihitung terpisah di Kas Keluar agar akurat secara tanggal
+            amount: inv.amount,
+            type: 'Termin Proyek',
+            badge: 'bg-blue-100 text-blue-700'
+        })),
         ...companyIncomes.map(inc => ({
             id: `inc-${inc.id}`,
             date: inc.date,
@@ -113,18 +136,30 @@ export default async function KeuanganPage({ searchParams }: { searchParams: Pro
     const totalPemasukan = kasMasukData.reduce((acc, curr) => acc + curr.amount, 0);
 
     // =========================================================================
-    // 2. DATA KAS KELUAR (HANYA OPEX: GAJI & PENGELUARAN PERUSAHAAN)
+    // 2. DATA KAS KELUAR 
     // =========================================================================
+    // A. Gaji Karyawan
     const payslips = await prisma.payslip.findMany({
         where: !isRingkasan ? { createdAt: { gte: startDate, lte: endDate } } : {},
         include: { worker: true }
     });
     const totalBebanGaji = payslips.reduce((acc, slip) => acc + slip.netPay, 0);
 
+    // B. Operasional Perusahaan (Manual)
     const companyExpenses = await prisma.companyExpense.findMany({
         where: !isRingkasan ? { date: { gte: startDate, lte: endDate } } : {},
     });
     const totalBebanPerusahaan = companyExpenses.reduce((acc, exp) => acc + exp.amount, 0);
+
+    // C. PENTING: Beban Proyek Khusus TERMIN (Agar Laba Bersih tetap akurat)
+    const terminProjectExpenses = await prisma.projectExpense.findMany({
+        where: {
+            project: { paymentType: "TERMIN" },
+            ...(!isRingkasan ? { date: { gte: startDate, lte: endDate } } : {})
+        },
+        include: { project: true }
+    });
+    const totalBebanProyekTermin = terminProjectExpenses.reduce((acc, exp) => acc + exp.amount, 0);
 
     const kasKeluarData = [
         ...payslips.map(p => ({
@@ -148,10 +183,21 @@ export default async function KeuanganPage({ searchParams }: { searchParams: Pro
             icon: Building2,
             color: 'bg-blue-50 text-blue-600',
             badge: 'bg-blue-100 text-blue-700'
+        })),
+        ...terminProjectExpenses.map(e => ({
+            id: `pexp-${e.id}`,
+            date: e.date,
+            title: e.description,
+            subtitle: `Proyek: ${e.project.title}`,
+            amount: e.amount,
+            type: 'BEBAN PROYEK',
+            icon: Wallet,
+            color: 'bg-orange-50 text-orange-600',
+            badge: 'bg-orange-100 text-orange-700'
         }))
     ].sort((a, b) => b.date.getTime() - a.date.getTime());
 
-    const totalPengeluaran = totalBebanGaji + totalBebanPerusahaan;
+    const totalPengeluaran = totalBebanGaji + totalBebanPerusahaan + totalBebanProyekTermin;
 
     // =========================================================================
     // 3. KALKULASI LABA RUGI PERUSAHAAN (Laba Bersih Akhir)
@@ -159,6 +205,7 @@ export default async function KeuanganPage({ searchParams }: { searchParams: Pro
     const labaBersihPerusahaan = totalPemasukan - totalPengeluaran;
     const marginLaba = totalPemasukan > 0 ? ((labaBersihPerusahaan / totalPemasukan) * 100).toFixed(1) : "0.0";
     const formatRp = (angka: number) => new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", minimumFractionDigits: 0 }).format(angka);
+
     const semuaTransaksi = [
         ...kasMasukData.map(t => ({ ...t, isIncome: true, icon: TrendingUp, color: 'bg-green-50 text-green-600' })),
         ...kasKeluarData.map(t => ({ ...t, isIncome: false }))
@@ -171,10 +218,10 @@ export default async function KeuanganPage({ searchParams }: { searchParams: Pro
             <div className="mb-6 md:mb-8">
                 <div className="flex flex-col xl:flex-row justify-between items-start xl:items-center mb-4 md:mb-6 gap-5">
                     <div>
-                        <h1 className="text-2xl md:text-3xl font-black text-slate-900 tracking-tight flex items-center gap-3 uppercase">
-                            <Landmark className="text-blue-600 w-8 h-8" /> Laporan Keuangan
+                        <h1 className="text-xl md:text-2xl font-bold text-black tracking-tight flex items-center gap-3 uppercase">
+                            LAPORAN KEUANGAN
                         </h1>
-                        <p className="text-xs md:text-sm text-slate-500 mt-1 uppercase tracking-widest font-medium">
+                        <p className="text-xs md:text-sm text-slate-500 mt-1 font-medium">
                             {isRingkasan ? "Ringkasan Laba Bersih Keseluruhan" : "Pemantauan Arus Kas Berdasarkan Tanggal"}
                         </p>
                     </div>
@@ -249,7 +296,7 @@ export default async function KeuanganPage({ searchParams }: { searchParams: Pro
                                 <div className="flex justify-between items-start mb-4">
                                     <div className="bg-red-50 text-red-600 p-3 rounded-2xl"><ArrowDownRight size={24} /></div>
                                 </div>
-                                <p className="text-[10px] font-black text-black uppercase tracking-widest mb-1">Total Kas Keluar (OpEx)</p>
+                                <p className="text-[10px] font-black text-black uppercase tracking-widest mb-1">Total Kas Keluar</p>
                                 <h3 className="text-2xl font-black text-red-600">{formatRp(totalPengeluaran)}</h3>
 
                             </div>
@@ -259,7 +306,7 @@ export default async function KeuanganPage({ searchParams }: { searchParams: Pro
                     <div className="lg:col-span-1">
                         <div className="bg-white rounded-3xl border border-slate-200 shadow-sm p-6">
                             <h3 className="font-black text-slate-900 uppercase tracking-widest text-xs mb-6 flex items-center gap-2">
-                                <TrendingDown size={16} className="text-red-500" /> Transaksi Terakhir
+                                <TrendingUpDown size={16} className="text-black" /> Transaksi Terakhir
                             </h3>
                             <div className="space-y-4 max-h-[380px] overflow-y-auto pr-2 flex-1" style={{ scrollbarWidth: 'thin' }}>
                                 {semuaTransaksi.length === 0 ? (
@@ -291,7 +338,7 @@ export default async function KeuanganPage({ searchParams }: { searchParams: Pro
                 </div>
             )}
 
-            {/* TAB 2: KAS MASUK (Diperbarui dengan Tombol Tambah Pemasukan) */}
+            {/* TAB 2: KAS MASUK */}
             {view === 'masuk' && (
                 <div className="animate-in fade-in duration-300">
                     <div className="bg-green-600 text-white p-5 sm:p-6 md:p-8 rounded-2xl md:rounded-3xl shadow-xl shadow-green-900/20 mb-6 md:mb-8 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 sm:gap-0">
@@ -381,12 +428,12 @@ export default async function KeuanganPage({ searchParams }: { searchParams: Pro
                 </div>
             )}
 
-            {/* TAB 3: KAS KELUAR (Hanya OpEx) */}
+            {/* TAB 3: KAS KELUAR */}
             {view === 'keluar' && (
                 <div className="animate-in fade-in duration-300">
                     <div className="bg-red-600 text-white p-5 sm:p-6 md:p-8 rounded-2xl md:rounded-3xl shadow-xl shadow-red-900/20 mb-6 md:mb-8 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 sm:gap-0">
                         <div className="w-full sm:w-auto">
-                            <p className="text-red-100 text-[10px] md:text-xs font-black uppercase tracking-widest mb-1">Total Pengeluaran Perusahaan (OpEx)</p>
+                            <p className="text-red-100 text-[10px] md:text-xs font-black uppercase tracking-widest mb-1">Total Pengeluaran (Beban & OpEx)</p>
                             <h2 className="text-3xl md:text-5xl font-black tracking-tight">{formatRp(totalPengeluaran)}</h2>
                         </div>
                         <div className="flex flex-row items-center gap-2 sm:gap-3 w-full sm:w-auto mt-1 sm:mt-0">

@@ -78,7 +78,7 @@ export default async function DetailLayanan(props: { params: Promise<{ slug: str
     return (
         <main className="min-h-screen bg-white">
             {/* Header / Banner Layanan - MURNI HTML STATIS (Tanpa Animasi JS) */}
-            <section className="bg-[#0B0C35] pt-40 pb-20 relative overflow-hidden">
+            <section className="bg-[#0B0C35] pt-30 pb-20 relative overflow-hidden">
                 <div className="absolute top-0 right-0 w-64 h-64 bg-[#277BBE] rounded-full blur-[100px] opacity-20 -mr-10 -mt-10 pointer-events-none"></div>
 
                 <div className="container mx-auto px-6 relative z-10">
@@ -92,11 +92,11 @@ export default async function DetailLayanan(props: { params: Promise<{ slug: str
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
                         {/* Bagian Teks Kiri - Langsung Muncul */}
                         <div>
-                            <div className="w-20 h-20 bg-white/10 rounded-2xl flex items-center justify-center text-[#F49414] mb-6 border border-white/20">
+                            <div className="w-15 h-15 bg-white/10 rounded-2xl flex items-center justify-center text-[#F49414] mb-6 border border-white/20">
                                 {data.icon}
                             </div>
                             {/* ELEMEN LCP: Bebas dari hambatan animasi! */}
-                            <h1 className="text-4xl md:text-6xl font-black text-white mb-6 tracking-tighter">
+                            <h1 className="text-4xl md:text-6xl font-black text-white mb-4 tracking-tighter">
                                 {data.title}
                             </h1>
                             <p className="text-xl text-white/70 leading-relaxed">
@@ -120,7 +120,7 @@ export default async function DetailLayanan(props: { params: Promise<{ slug: str
             </section>
 
             {/* Konten Detail - Memanggil komponen animasi di klien */}
-            <section className="py-24">
+            <section className="py-10">
                 <div className="container mx-auto px-6">
                     <AnimatedContent data={data} />
                 </div>

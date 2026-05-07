@@ -1,3 +1,4 @@
+// src/app/(admin)/admin/pengajuan/[id]/bap/baru/actions.ts
 "use server";
 import { prisma } from "@/lib/prisma";
 import { writeFile, mkdir } from "fs/promises";
@@ -42,26 +43,17 @@ async function generateDocumentNumber(type: "BAP" | "INVOICE") {
   return `${formattedNumber}/${type === "BAP" ? "BAP" : "INV"}/PJ/${romanMonth}/${year}`;
 }
 
-export async function simpanBapDanInvoice(formData: FormData) {
+export async function simpanBapTermin(formData: FormData) {
   try {
     const projectId = formData.get("projectId") as string;
+    const terminId = formData.get("terminId") as string;
 
     const cekProyek = await prisma.project.findUnique({
       where: { id: projectId },
-      // 1. PERBAIKAN: Ubah menjadi baps dan invoices
-      include: { baps: true, invoices: true },
     });
 
     if (!cekProyek) {
       return { success: false, error: "Proyek tidak ditemukan." };
-    }
-
-    // 2. PERBAIKAN: Cek dari dalam array baps
-    if (cekProyek.baps && cekProyek.baps.length > 0) {
-      return {
-        success: false,
-        error: "BAP untuk proyek ini sudah pernah diterbitkan.",
-      };
     }
 
     const items = JSON.parse(formData.get("items") as string);
@@ -88,53 +80,37 @@ export async function simpanBapDanInvoice(formData: FormData) {
     }
 
     const bapNumber = await generateDocumentNumber("BAP");
-    const invoiceNumber = await generateDocumentNumber("INVOICE");
 
-    // 3. KALKULASI TAGIHAN OTOMATIS: Hitung total item dikurangi DP
-    const totalPekerjaan = items.reduce(
-      (acc: number, item: any) => acc + Number(item.qty) * Number(item.price),
-      0,
-    );
-    const sisaTagihan = totalPekerjaan - (cekProyek.dpAmount || 0);
-
-    await prisma.project.update({
-      where: { id: projectId },
+    // 1. Buat BAP dan tautkan ke Termin
+    await prisma.bap.create({
       data: {
-        status: "COMPLETED_INVOICED",
-        actualEndDate: new Date(),
-        // 4. PERBAIKAN: Gunakan baps (jamak)
-        baps: {
-          create: {
-            bapNumber: bapNumber,
-            items: {
-              create: items.map((item: any) => ({
-                description: item.description,
-                qty: Number(item.qty),
-                unit: item.unit,
-                price: Number(item.price),
-              })),
-            },
-            attachments: { create: attachments },
-          },
+        bapNumber: bapNumber,
+        projectId: projectId,
+        terminId: terminId,
+        items: {
+          create: items.map((item: any) => ({
+            description: item.description,
+            qty: Number(item.qty),
+            unit: item.unit,
+            price: Number(item.price),
+          })),
         },
-        // 5. PERBAIKAN: Gunakan invoices (jamak) dan simpan jumlah tagihan (amount)
-        invoices: {
-          create: {
-            invoiceNumber: invoiceNumber,
-            terbilang: "Akan dikalkulasi otomatis",
-            amount: sisaTagihan, // Nominal akan langsung masuk ke database!
-          },
-        },
+        attachments: { create: attachments },
       },
     });
 
+    // 2. Jika proyek statusnya masih IN_PROGRESS, ubah jadi COMPLETED_INVOICED
+    // (Atau bisa tetap IN_PROGRESS tergantung sisa termin, tapi untuk saat ini kita biarkan COMPLETED_INVOICED agar rapi)
+    await prisma.project.update({
+      where: { id: projectId },
+      data: { status: "COMPLETED_INVOICED" },
+    });
+
     revalidatePath(`/admin/pengajuan/${projectId}`);
-    revalidatePath(`/admin/jadwal`);
-    revalidatePath(`/admin/dashboard`);
 
     return { success: true };
   } catch (error: any) {
-    console.error("Critical Error Simpan BAP:", error);
+    console.error("Critical Error Simpan BAP Termin:", error);
     return {
       success: false,
       error: error.message || "Terjadi kesalahan internal.",

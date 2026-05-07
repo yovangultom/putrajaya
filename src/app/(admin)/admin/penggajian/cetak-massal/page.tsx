@@ -191,12 +191,12 @@ export default async function CetakMassalSlipPage({ searchParams }: { searchPara
                                                     {(() => {
                                                         // 1. Buat keranjang rincian (Gaji Pokok selalu ada)
                                                         const rincian = [
-                                                            { label: `Gaji Pokok (${payslip.totalDays} Hari)`, value: basePay, isDeduction: false }
+                                                            { label: `Gaji Pokok (${payslip.totalDays} Hari x ${formatRp(payslip.worker.dailyWage)})`, value: basePay, isDeduction: false }
                                                         ];
 
                                                         // 2. Tambahkan Gaji Lembur jika ada
                                                         if (payslip.totalOvertime > 0) {
-                                                            rincian.push({ label: `Gaji Lemburan (${payslip.totalOvertime} Jam)`, value: overtimePay, isDeduction: false });
+                                                            rincian.push({ label: `Gaji Lembur (${payslip.totalOvertime} Jam x ${formatRp(payslip.worker.overtimeRatePerHour)})`, value: overtimePay, isDeduction: false });
                                                         }
 
                                                         // 3. Tambahkan Bonus jika ada

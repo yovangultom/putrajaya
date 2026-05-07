@@ -67,8 +67,8 @@ export default async function AbsensiPage({ searchParams }: { searchParams: Prom
         <div className="p-4 md:p-8 bg-slate-50 min-h-screen">
             {/* HEADER & TAB NAVIGASI */}
             <div className="mb-6 md:mb-8">
-                <h1 className="text-2xl md:text-3xl font-black text-slate-900 tracking-tight flex items-center gap-3 mb-4 md:mb-6">
-                    <ClipboardList className="text-blue-600 w-8 h-8" /> ABSENSI KARYAWAN
+                <h1 className="text-xl md:text-2xl font-bold text-black tracking-tight flex items-center gap-3 mb-4 md:mb-6">
+                    ABSENSI KARYAWAN
                 </h1>
 
                 {/* Sistem Tab */}

@@ -1,7 +1,21 @@
 // src/app/(admin)/admin/penggajian/[id]/cetak/page.tsx
 import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
-import { Printer } from "lucide-react";
+import Link from "next/link";
+import { ArrowLeft, Printer } from "lucide-react";
+
+function terbilang(angka: number): string {
+    const bilangan = ['', 'Satu', 'Dua', 'Tiga', 'Empat', 'Lima', 'Enam', 'Tujuh', 'Delapan', 'Sembilan', 'Sepuluh', 'Sebelas'];
+    if (angka < 12) return bilangan[angka];
+    if (angka < 20) return terbilang(angka - 10) + ' Belas';
+    if (angka < 100) return terbilang(Math.floor(angka / 10)) + ' Puluh ' + terbilang(angka % 10);
+    if (angka < 200) return 'Seratus ' + terbilang(angka - 100);
+    if (angka < 1000) return terbilang(Math.floor(angka / 100)) + ' Ratus ' + terbilang(angka % 100);
+    if (angka < 2000) return 'Seribu ' + terbilang(angka - 1000);
+    if (angka < 1000000) return terbilang(Math.floor(angka / 1000)) + ' Ribu ' + terbilang(angka % 1000);
+    if (angka < 1000000000) return terbilang(Math.floor(angka / 1000000)) + ' Juta ' + terbilang(angka % 1000000);
+    return '';
+}
 
 export default async function CetakSlipGajiPage({ params }: { params: Promise<{ id: string }> }) {
     const { id } = await params;
@@ -13,126 +27,192 @@ export default async function CetakSlipGajiPage({ params }: { params: Promise<{ 
 
     if (!payslip) notFound();
 
-    const formatRp = (angka: number) => new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", minimumFractionDigits: 0 }).format(angka);
+    const formatRp = (angka: number) => new Intl.NumberFormat("id-ID", { minimumFractionDigits: 0 }).format(angka);
+    const formatDate = (date: Date) => date.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
 
-    // Format Tanggal: "14 Apr 2026"
-    const formatDate = (date: Date) => date.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
-
-    // Kalkulasi Rincian
     const basePay = payslip.totalDays * payslip.worker.dailyWage;
     const overtimePay = payslip.totalOvertime * payslip.worker.overtimeRatePerHour;
-    const totalPendapatanKotor = basePay + overtimePay + payslip.bonus;
 
     return (
-        <div className="bg-slate-100 min-h-screen py-8 print:py-0 print:bg-white flex justify-center">
+        <div className="bg-slate-50 min-h-screen py-4 md:py-8 px-2 md:px-0 print:py-0 print:px-0 print:bg-white text-black font-['Arial'] print:block">
 
-            {/* Tombol Print (Akan hilang saat kertas dicetak) */}
-            <div className="fixed top-8 right-8 print:hidden">
-                <button
-                    id="btn-cetak" // <--- Ganti onClick menjadi id ini
-                    className="flex items-center gap-2 bg-slate-900 text-white px-6 py-3 rounded-full font-bold uppercase tracking-widest shadow-xl hover:bg-slate-800 transition-all"
-                >
-                    <Printer size={18} /> Cetak Slip
-                </button>
+            <style dangerouslySetInnerHTML={{
+                __html: `
+                @media print {
+                    @page { 
+                        size: A4 portrait;
+                        margin: 0mm;
+                    }
+                    body {
+                        -webkit-print-color-adjust: exact;
+                        print-color-adjust: exact;
+                    }
+                    .kertas-a4 {
+                        width: 210mm !important;
+                        height: 297mm !important;
+                        padding: 10mm !important;
+                        margin: 0 !important;
+                        box-shadow: none !important;
+                        page-break-after: always;
+                        page-break-inside: avoid;
+                        display: flex !important;
+                        flex-direction: column !important;
+                    }
+                }
+            `}} />
+
+            <div className="w-full max-w-[21cm] mx-auto flex flex-col px-2 md:px-0">
+
+                {/* TOP BAR: Tombol Kembali & Print */}
+                <div className="w-full flex justify-between items-center mb-4 md:mb-6 print:hidden">
+                    <Link href={`/admin/penggajian`} className="flex items-center gap-2 text-slate-500 hover:text-slate-900 text-[10px] md:text-sm font-bold uppercase tracking-widest transition-colors">
+                        <ArrowLeft size={16} className="w-4 h-4 md:w-5 md:h-5" />
+                        <span className="hidden sm:inline">Kembali</span>
+                    </Link>
+
+                    <button
+                        id="btn-cetak"
+                        className="flex items-center gap-2 bg-slate-900 text-white px-4 py-2 rounded-lg font-bold uppercase tracking-widest shadow-xl hover:bg-slate-800 transition-all text-xs"
+                    >
+                        <Printer size={16} /> Cetak Slip
+                    </button>
+                </div>
+
+                {/* Wrapper Kertas A4 */}
+                <div className="kertas-a4 bg-white w-full md:w-[21cm] h-auto md:h-[29.7cm] p-4 sm:p-6 md:p-[1cm] shadow-2xl flex flex-col relative box-border print:shadow-none">
+
+                    {/* Format 1 Slip (Tinggi 1/3 Kertas untuk konsistensi dengan massal) */}
+                    <div className="w-full box-border flex flex-col justify-between py-3 px-1 md:px-2 print:px-2 md:h-1/3 print:h-1/3 shrink-0 gap-3 md:gap-0 print:gap-0 border-b border-dashed border-gray-400 print:border-b-0 print:border-transparent">
+
+                        <div>
+                            {/* HEADER PERUSAHAAN */}
+                            <div className="flex justify-between items-center mb-2 md:mb-3 print:mb-0 border-b border-slate-200 pb-2">
+                                <div className="flex items-center gap-2 md:gap-3 print:gap-3">
+                                    <div className="relative w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 print:w-12 print:h-12 shrink-0 pt-0.5">
+                                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                                        <img
+                                            src="/PutraJaya_Logo.png"
+                                            alt="Logo CV Putra Jaya"
+                                            className="object-contain w-full h-full"
+                                        />
+                                    </div>
+                                    <div>
+                                        <h1 className="text-sm sm:text-base md:text-lg print:text-[12pt] font-black print:font-bold text-black tracking-tighter uppercase leading-none">CV. PUTRA JAYA</h1>
+                                        <p className="text-[6px] sm:text-[7px] md:text-[8px] print:text-[8px] leading-tight mt-0.5 md:mt-1 print:mt-0.5 text-black uppercase font-bold">
+                                            Alamat: Jl. KH Mochammad RT.01 RW.02 No.86, <br /> Kelurahan Mangunjaya, Kecamatan Tambun Selatan, <br className="md:hidden print:hidden" />Kab. Bekasi 17510<br />
+                                            WhatsApp: 087888431444
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <div className="text-right shrink-0">
+                                    <h2 className="text-[10px] sm:text-xs md:text-sm print:text-sm font-black uppercase text-gray-600 px-2 md:px-3 print:px-3 py-1">Slip Gaji</h2>
+                                </div>
+                            </div>
+
+                            {/* INFO KARYAWAN */}
+                            <div className="flex justify-between text-[9px] sm:text-[10px] md:text-[11px] print:text-[10pt] mb-2 md:mb-3 print:mb-0 font-medium flex-wrap gap-1 sm:gap-0">
+                                <table className="w-full sm:w-1/2 print:p-0">
+                                    <tbody>
+                                        <tr><td className="w-12 sm:w-16 uppercase">Nama</td><td className="w-2">:</td><td className="font-bold uppercase">{payslip.worker.name}</td></tr>
+                                        <tr><td className="uppercase">Jabatan</td><td>:</td><td className="uppercase">{payslip.worker.role}</td></tr>
+                                    </tbody>
+                                </table>
+                                <table className="w-full sm:w-1/2 mt-1 sm:mt-0">
+                                    <tbody>
+                                        <tr><td className="w-12 sm:w-16 uppercase">Periode</td><td className="w-2">:</td><td className="font-bold">{payslip.periodStart.toLocaleDateString('id-ID', { day: '2-digit', month: '2-digit', year: 'numeric' })} - {payslip.periodEnd.toLocaleDateString('id-ID', { day: '2-digit', month: '2-digit', year: 'numeric' })}</td></tr>
+                                        <tr><td className="uppercase">ID Slip</td><td>:</td><td className="uppercase">{payslip.id.slice(-6)}</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            {/* TABEL RINCIAN */}
+                            <table className="w-full text-[9px] sm:text-[10px] md:text-[11px] print:text-[10pt] border-y-2 border-black mb-1 print:p-0">
+                                <thead>
+                                    <tr className="border-b border-black text-left bg-gray-50 print:bg-white">
+                                        <th className="py-1 print:py-0 w-6 sm:w-8 uppercase">No</th>
+                                        <th className="py-1 print:py-0 uppercase">Keterangan</th>
+                                        <th className="py-1 print:py-0 text-right uppercase">Jumlah</th>
+                                    </tr>
+                                </thead>
+                                <tbody className="font-medium print:text-[10pt] print:p-0">
+                                    {(() => {
+                                        const rincian = [
+                                            { label: `Gaji Pokok (${payslip.totalDays} Hari x ${formatRp(payslip.worker.dailyWage)})`, value: basePay, isDeduction: false }
+                                        ];
+
+                                        if (payslip.totalOvertime > 0) {
+                                            rincian.push({ label: `Gaji Lembur (${payslip.totalOvertime} Jam x ${formatRp(payslip.worker.overtimeRatePerHour)})`, value: overtimePay, isDeduction: false });
+                                        }
+
+                                        if ((payslip.bonus || 0) > 0) {
+                                            rincian.push({ label: `Bonus / Tambahan`, value: payslip.bonus, isDeduction: false });
+                                        }
+
+                                        if ((payslip.kasbonDeduction || 0) > 0) {
+                                            rincian.push({ label: `Potongan Kasbon`, value: payslip.kasbonDeduction, isDeduction: true });
+                                        }
+
+                                        return (
+                                            <>
+                                                {rincian.map((item, idx) => (
+                                                    <tr key={idx}>
+                                                        <td className="py-1 print:py-0">{idx + 1}.</td>
+                                                        <td className={`py-1 print:py-0 ${item.isDeduction ? 'text-red-600' : ''}`}>{item.label}</td>
+                                                        <td className={`py-1 text-right print:py-0 ${item.isDeduction ? 'text-red-600' : ''}`}>
+                                                            {item.isDeduction ? `(${formatRp(item.value)})` : formatRp(item.value)}
+                                                        </td>
+                                                    </tr>
+                                                ))}
+                                                <tr>
+                                                    <td colSpan={2}></td>
+                                                    <td className="py-1 border-t border-black text-right text-[8px] sm:text-[10px] italic">(+)</td>
+                                                </tr>
+                                            </>
+                                        );
+                                    })()}
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div>
+                            {/* TOTAL DAN TERBILANG */}
+                            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center border-y-2 border-black py-1 mb-2 gap-1 sm:gap-0 bg-slate-50 print:bg-white px-2 rounded-md print:p-0">
+                                <p className="text-[8px] sm:text-[9px] md:text-[10px] print:text-[10px] font-bold italic capitalize w-full sm:w-2/3 pr-2 leading-tight py-1 sm:p-0">{terbilang(payslip.netPay)} Rupiah</p>
+                                <div className="w-1/3 flex justify-between font-black text-[9px] sm:text-[10px] md:text-[11px] print:text-[11px] uppercase mt-1 sm:mt-0 py-1 sm:p-0">
+                                    <span>Total :</span>
+                                    <span>Rp. {formatRp(payslip.netPay)}</span>
+                                </div>
+                            </div>
+
+                            {/* TANDA TANGAN */}
+                            <div className="flex justify-between text-[9px] sm:text-[10px] md:text-[11px] text-center px-2 sm:px-4 print:text-[10pt]">
+                                <div>
+                                    <p className="mb-6 sm:mb-8 print:mb-8 print:text-[10pt]">Penerima,</p>
+                                    <p className="font-medium uppercase underline print:text-[10pt]">{payslip.worker.name}</p>
+                                </div>
+                                <div>
+                                    <p className="mb-6 sm:mb-8 print:mb-8 text-right text-[8px] sm:text-[9px] md:text-[10px] print:text-[10pt]">{formatDate(payslip.createdAt)}</p>
+                                    <p className="font-medium uppercase underline print:text-[10pt]">CV PUTRA JAYA</p>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
             </div>
 
-            {/* KERTAS SLIP GAJI (Ukuran 80mm cocok untuk struk atau A4 setengah) */}
-            <div className="bg-white w-full max-w-lg md:max-w-2xl p-8 md:p-12 shadow-2xl print:shadow-none print:p-0 print:max-w-full text-black">
-
-                {/* KOP PERUSAHAAN */}
-                <div className="border-b-2 border-black pb-4 mb-6 flex justify-between items-end">
-                    <div>
-                        <h1 className="text-2xl font-black uppercase tracking-tighter">CV Putra Jaya</h1>
-                        <p className="text-xs font-medium uppercase tracking-widest mt-1 text-gray-600">Konstruksi & Manajemen Proyek</p>
-                    </div>
-                    <div className="text-right">
-                        <h2 className="text-lg font-black uppercase tracking-widest bg-black text-white px-3 py-1 inline-block">Slip Gaji</h2>
-                        <p className="text-[10px] uppercase font-bold mt-2">ID: {payslip.id.slice(-8).toUpperCase()}</p>
-                    </div>
-                </div>
-
-                {/* INFO PEKERJA & PERIODE */}
-                <div className="grid grid-cols-2 gap-4 mb-8 text-sm">
-                    <div>
-                        <p className="text-xs text-gray-500 uppercase font-bold tracking-widest mb-1">Nama Pekerja</p>
-                        <p className="font-black text-lg uppercase">{payslip.worker.name}</p>
-                        <p className="font-bold text-gray-700 uppercase text-xs mt-0.5">{payslip.worker.role}</p>
-                    </div>
-                    <div className="text-right">
-                        <p className="text-xs text-gray-500 uppercase font-bold tracking-widest mb-1">Periode Kerja</p>
-                        <p className="font-black">{formatDate(payslip.periodStart)}</p>
-                        <p className="text-xs font-bold text-gray-500">s/d</p>
-                        <p className="font-black">{formatDate(payslip.periodEnd)}</p>
-                    </div>
-                </div>
-
-                {/* RINCIAN PENDAPATAN */}
-                <div className="mb-6">
-                    <h3 className="font-black uppercase tracking-widest text-xs border-b border-black pb-2 mb-3">Rincian Pendapatan</h3>
-                    <div className="space-y-2 text-sm font-medium">
-                        <div className="flex justify-between">
-                            <span>Gaji Pokok ({payslip.totalDays} Hari x {formatRp(payslip.worker.dailyWage)})</span>
-                            <span className="font-black">{formatRp(basePay)}</span>
-                        </div>
-                        <div className="flex justify-between">
-                            <span>Upah Lembur ({payslip.totalOvertime} Jam x {formatRp(payslip.worker.overtimeRatePerHour)})</span>
-                            <span className="font-black">{formatRp(overtimePay)}</span>
-                        </div>
-                        <div className="flex justify-between">
-                            <span>Bonus / Tambahan Lain</span>
-                            <span className="font-black">{formatRp(payslip.bonus)}</span>
-                        </div>
-                    </div>
-                </div>
-
-                {/* RINCIAN POTONGAN */}
-                <div className="mb-6">
-                    <h3 className="font-black uppercase tracking-widest text-xs border-b border-black pb-2 mb-3">Rincian Potongan</h3>
-                    <div className="space-y-2 text-sm font-medium">
-                        <div className="flex justify-between text-red-600">
-                            <span>Potongan Kasbon / Utang</span>
-                            <span className="font-black">-{formatRp(payslip.kasbonDeduction)}</span>
-                        </div>
-                    </div>
-                </div>
-
-                {/* TOTAL DITERIMA (TAKE HOME PAY) */}
-                <div className="border-t-2 border-black pt-4 mb-12">
-                    <div className="flex justify-between items-center">
-                        <span className="font-black uppercase tracking-widest text-sm">Penerimaan Bersih</span>
-                        <span className="text-2xl font-black bg-black text-white px-4 py-2">{formatRp(payslip.netPay)}</span>
-                    </div>
-                </div>
-
-                {/* TANDA TANGAN */}
-                <div className="grid grid-cols-2 gap-8 text-center text-sm mt-16 pt-8">
-                    <div>
-                        <p className="mb-16 font-bold uppercase text-xs">Penerima</p>
-                        <div className="border-b border-black w-3/4 mx-auto mb-1"></div>
-                        <p className="font-black uppercase">{payslip.worker.name}</p>
-                    </div>
-                    <div>
-                        <p className="mb-16 font-bold uppercase text-xs">Bag. Keuangan / Admin</p>
-                        <div className="border-b border-black w-3/4 mx-auto mb-1"></div>
-                        <p className="font-black uppercase">CV Putra Jaya</p>
-                    </div>
-                </div>
-
-                {/* Script untuk Print Otomatis */}
-                {/* Script untuk Print Otomatis & Tombol Manual */}
-                <script dangerouslySetInnerHTML={{
-                    __html: `
-                    // 1. Fungsi untuk tombol manual
+            {/* Script untuk Print Otomatis & Tombol Manual */}
+            <script dangerouslySetInnerHTML={{
+                __html: `
                     document.getElementById('btn-cetak').addEventListener('click', function() {
                         window.print();
                     });
 
-                    // 2. Fungsi otomatis munculkan dialog print saat halaman selesai dimuat
                     window.onload = function() {
                         window.print();
                     }
                 `}} />
-            </div>
         </div>
     );
 }

@@ -27,6 +27,7 @@ export default function Sidebar({ session, signOutAction }: any) {
         { name: "Manajemen Akun", href: "/admin/users", icon: Users, access: ["SUPER_ADMIN"] },
     ];
     const filteredMenu = menuItems.filter(item => item.access.includes(userRole));
+
     return (
         <>
             {/* Tombol Hamburger untuk Mobile (Ditambahkan print:hidden agar tidak muncul di PDF) */}
@@ -48,14 +49,20 @@ export default function Sidebar({ session, signOutAction }: any) {
                 />
             )}
 
-            {/* Kontainer Sidebar (Ditambahkan print:hidden) */}
+            {/* Kontainer Sidebar */}
             <aside className={`
                     fixed inset-y-0 left-0 z-70 w-64 bg-slate-900 text-white flex flex-col transition-transform duration-300 transform print:hidden
                     ${isOpen ? "translate-x-0" : "-translate-x-full"}
-                    lg:translate-x-0 lg:sticky lg:inset-y-0 lg:min-h-screen  lg:top-0
+                    lg:translate-x-0 lg:sticky lg:h-screen lg:top-0
                 `}>
+                {/* 
+                  ^ PERUBAHAN 1:
+                  Mengubah 'lg:min-h-screen' menjadi 'lg:h-screen' agar tinggi sidebar tidak kebablasan 
+                  melebihi tinggi monitor.
+                */}
+
                 {/* Header Sidebar */}
-                <div className="p-8 border-b border-slate-900 flex flex-col items-center">
+                <div className="p-8 border-b border-slate-900 flex flex-col items-center shrink-0">
                     <div className="relative w-20 h-20 mb-3">
                         <Image
                             src="/PutraJaya_Logo.png"
@@ -76,7 +83,12 @@ export default function Sidebar({ session, signOutAction }: any) {
                 </div>
 
                 {/* Menu Navigasi */}
-                <nav className="flex-1 p-4 space-y-1">
+                {/* 
+                  ^ PERUBAHAN 2:
+                  Menambahkan 'overflow-y-auto' di bawah agar jika menu terlalu banyak, 
+                  bagian ini bisa di-scroll tanpa mendorong tombol logout keluar dari layar.
+                */}
+                <nav className="flex-1 p-4 space-y-1 overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
                     {filteredMenu.map((item) => {
                         const isActive = pathname.startsWith(item.href);
                         return (
@@ -97,13 +109,12 @@ export default function Sidebar({ session, signOutAction }: any) {
                 </nav>
 
                 {/* Profil & Logout */}
-                <div className="p-4 border-t border-slate-800 bg-slate-950/50">
+                <div className="p-4 border-t border-slate-800 bg-slate-950/50 shrink-0">
                     <div className="mb-4 px-2">
                         <p className="text-sm font-bold text-white truncate">{session.user?.name}</p>
-                        {/* Warna badge berbeda tiap role agar mudah dibedakan */}
                         <span className={`inline-block mt-1 px-2 py-0.5 text-[10px] font-bold rounded border uppercase ${userRole === 'SUPER_ADMIN' ? 'bg-red-500/10 text-red-500 border-red-500/20' :
-                                userRole === 'FINANCE' ? 'bg-green-500/10 text-green-500 border-green-500/20' :
-                                    'bg-blue-500/10 text-blue-500 border-blue-500/20'
+                            userRole === 'FINANCE' ? 'bg-green-500/10 text-green-500 border-green-500/20' :
+                                'bg-blue-500/10 text-blue-500 border-blue-500/20'
                             }`}>
                             {userRole.replace('_', ' ')}
                         </span>

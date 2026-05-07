@@ -9,15 +9,21 @@ export default async function BapPage({ params }: { params: Promise<{ id: string
         where: { id: id },
         include: {
             pengajuanItems: true,
-            bap: { include: { items: true, attachments: true } }
+            // 1. UBAH 'bap' menjadi 'baps'
+            baps: {
+                include: { items: true, attachments: true }
+            }
         }
     });
 
     if (!project) notFound();
 
+    // 2. Karena baps sekarang adalah array, kita ambil index ke-0 (BAP pertama) jika ada
+    const existingBap = project.baps && project.baps.length > 0 ? project.baps[0] : null;
 
-    const initialItems = project.bap
-        ? project.bap.items
+    // 3. Gunakan existingBap untuk pengecekan
+    const initialItems = existingBap
+        ? existingBap.items
         : project.pengajuanItems.map(item => ({
             description: item.description,
             qty: item.qty,

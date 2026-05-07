@@ -7,6 +7,9 @@ import RescheduleButton from "./RescheduleButton";
 import CancelButton from "./CancelButton";
 import AddExpenseModal from "./AddExpenseModal";
 import { Receipt } from "lucide-react";
+import JadwalDanTerminForm from "./JadwalDanTerminForm";
+import { terbitkanInvoiceTermin } from "./actions";
+import { tandaiInvoiceLunas } from "./actions";
 
 const statusPenerjemah: Record<string, string> = {
     PENGAJUAN: "Pengajuan",
@@ -24,9 +27,14 @@ export default async function DetailProyekPage({ params }: { params: Promise<{ i
         where: { id: id },
         include: {
             pengajuanItems: true,
-            invoice: true,
-            bap: true,
-            expenses: true // 
+            invoices: true,  // <-- Ubah jadi jamak
+            baps: true,      // <-- Ubah jadi jamak
+            expenses: true,
+            termins: {
+                orderBy: { id: 'asc' },
+                include: { invoice: true, bap: true } // <--- Tambahkan bap: true
+            },
+            contract: true   // <-- Tambahkan ini
         }
     });
 
@@ -34,13 +42,40 @@ export default async function DetailProyekPage({ params }: { params: Promise<{ i
 
     async function konfirmasiPelunasan() {
         "use server";
+
+        const currentProject = await prisma.project.findUnique({
+            where: { id: id }
+        });
+
+        if (!currentProject) return;
+
+        // 1. Update status Proyek menjadi PAID
         await prisma.project.update({
             where: { id: id },
             data: { status: "PAID" }
         });
-        revalidatePath(`/admin/pengajuan/${id}`);
-    }
 
+        // 2. Cari semua invoice proyek ini yang masih UNPAID dan lunasi
+        const invoices = await prisma.invoice.findMany({
+            where: {
+                projectId: id,
+                status: "UNPAID"
+            }
+        });
+
+        for (const inv of invoices) {
+            // Update status Invoice
+            await prisma.invoice.update({
+                where: { id: inv.id },
+                data: { status: "PAID" }
+            });
+            // CATATAN: prisma.companyIncome.create SUDAH DIHAPUS DARI SINI
+        }
+
+        revalidatePath(`/admin/pengajuan/${id}`);
+        revalidatePath(`/admin/invoices`);
+        revalidatePath(`/admin/keuangan`);
+    }
     const totalEstimasi = project.pengajuanItems.reduce((acc, curr) => acc + (curr.qty * curr.price), 0);
 
     // Action Tahap 2 & 3: Deal & Jadwal
@@ -224,32 +259,11 @@ export default async function DetailProyekPage({ params }: { params: Promise<{ i
 
                     {project.status === "PENGAJUAN" && (
                         <div className="bg-white rounded-2xl md:rounded-3xl shadow-xl border border-blue-200 md:border-slate-200 overflow-hidden relative z-10">
-                            <div className="bg-blue-600 h-2 w-full"></div>
-                            <form action={terimaDanJadwalkan} className="p-5 md:p-8 space-y-4 md:space-y-5">
-                                <div className="mb-2 md:mb-4">
-                                    <h2 className="text-base md:text-lg font-black text-slate-900 uppercase">Jadwalkan Proyek</h2>
-                                    <p className="text-[10px] text-slate-500 md:hidden mt-1 leading-tight">Isi form ini untuk menyetujui penawaran dan menetapkan jadwal.</p>
-                                </div>
-                                <div className="space-y-3 md:space-y-4">
-                                    <div>
-                                        <label className="text-[10px] font-black text-slate-800 uppercase tracking-widest block mb-1">Uang Muka (DP)</label>
-                                        <input name="dpAmount" placeholder="kosongkan jika tidak ada" type="number" className="w-full px-4 py-2.5 md:py-3 text-black bg-slate-50 border border-slate-200 rounded-xl text-sm placeholder-slate-400 focus:ring-2 focus:ring-blue-600 outline-none transition-all" />
-                                    </div>
-                                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 2xl:grid-cols-2 gap-2 md:gap-3">
-                                        <div>
-                                            <label className="text-[10px] font-black text-slate-800 uppercase tracking-widest block mb-1">Mulai</label>
-                                            <input name="startDate" type="date" required className="w-full px-3 py-2.5 md:py-3 text-black bg-slate-50 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-blue-600 outline-none transition-all" />
-                                        </div>
-                                        <div>
-                                            <label className="text-[10px] font-black text-slate-800 uppercase tracking-widest block mb-1">Selesai</label>
-                                            <input name="endDate" type="date" required className="w-full px-3 py-2.5 md:py-3 text-black bg-slate-50 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-blue-600 outline-none transition-all" />
-                                        </div>
-                                    </div>
-                                </div>
-                                <button type="submit" className="w-full bg-blue-600 text-white font-black py-3.5 md:py-4 rounded-xl md:rounded-2xl hover:bg-blue-700 transition-all text-[10px] md:text-xs tracking-widest mt-4 md:mt-6 shadow-lg shadow-blue-600/20 active:scale-[0.98]">
-                                    DEAL & JADWALKAN
-                                </button>
-                            </form>
+                            {/* <div className="bg-blue-600 h-2 w-full"></div> */}
+                            <JadwalDanTerminForm
+                                projectId={project.id}
+                                totalEstimasi={totalEstimasi}
+                            />
                             <CancelButton projectId={project.id} action={batalkanProyek} />
                         </div>
                     )}
@@ -286,12 +300,126 @@ export default async function DetailProyekPage({ params }: { params: Promise<{ i
                             </form>
                         </div>
                     )}
+                    {/* PANEL TERMIN & SPK (Hanya muncul jika tipe pembayaran TERMIN) */}
+                    {project.paymentType === "TERMIN" && project.termins.length > 0 && (
+                        <div className="bg-white rounded-2xl md:rounded-3xl border border-slate-200 p-5 md:p-8 shadow-sm">
+                            <h3 className="text-sm font-black text-slate-900 uppercase tracking-tight mb-4 flex items-center gap-2">
+                                <FileText size={16} className="text-blue-600" /> Manajemen Termin
+                            </h3>
 
+                            <div className="space-y-3 mb-5">
+                                {project.termins.map((termin, idx) => (
+                                    <div key={termin.id} className="p-3 md:p-4 border border-slate-100 rounded-xl bg-slate-50 flex flex-col xl:flex-row xl:justify-between xl:items-center gap-3 hover:bg-slate-100 transition-colors">
+                                        <div>
+                                            <p className="text-xs md:text-sm font-bold text-slate-800">{termin.name}</p>
+                                            <p className="text-[10px] md:text-xs text-slate-500 font-medium mt-0.5">
+                                                {termin.percentage}% - {formatRupiah(termin.amount)}
+                                            </p>
+                                        </div>
+
+                                        {/* BAGIAN TOMBOL AKSI TRACKING */}
+
+                                        <div className="flex flex-wrap gap-2 items-center xl:justify-end">
+                                            {termin.status === "PENDING" && (
+                                                idx === 0 ? (
+                                                    // Termin 1 (DP) langsung terbitkan invoice
+                                                    <form action={terbitkanInvoiceTermin.bind(null, project.id, termin.id, termin.amount)}>
+                                                        <button type="submit" className="text-[10px] bg-blue-600 text-white px-3 py-2 rounded-lg font-bold uppercase tracking-wider hover:bg-blue-700 transition-all shadow-sm">
+                                                            Terbitkan Invoice DP
+                                                        </button>
+                                                    </form>
+                                                ) : (
+                                                    // Termin 2, 3, dst: Cek apakah sudah ada BAP?
+                                                    termin.bap ? (
+                                                        <div className="flex items-center gap-2">
+                                                            {/* TAMBAHAN: Tombol Lihat BAP */}
+                                                            <Link href={`/admin/pengajuan/${project.id}/bap/cetak?terminId=${termin.id}`} className="text-[10px] bg-white text-indigo-600 border border-indigo-200 px-3 py-2 rounded-lg font-bold uppercase tracking-wider hover:bg-indigo-50 transition-all shadow-sm">
+                                                                Lihat BAP
+                                                            </Link>
+                                                            <form action={terbitkanInvoiceTermin.bind(null, project.id, termin.id, termin.amount)}>
+                                                                <button type="submit" className="text-[10px] bg-blue-600 text-white px-3 py-2 rounded-lg font-bold uppercase tracking-wider hover:bg-blue-700 transition-all shadow-sm">
+                                                                    Terbitkan Invoice Termin
+                                                                </button>
+                                                            </form>
+                                                        </div>
+                                                    ) : (
+                                                        <Link href={`/admin/pengajuan/${project.id}/bap/baru?terminId=${termin.id}`} className="text-[10px] bg-indigo-50 text-indigo-700 border border-indigo-200 px-3 py-2 rounded-lg font-bold uppercase tracking-wider hover:bg-indigo-600 hover:text-white transition-all shadow-sm flex items-center gap-1">
+                                                            <FileCheck2 size={12} /> Buat BAP
+                                                        </Link>
+                                                    )
+                                                )
+                                            )}
+
+                                            {termin.status === "INVOICED" && (
+                                                <>
+                                                    <span className="text-[10px] bg-amber-100 text-amber-700 px-3 py-2 rounded-lg font-bold uppercase tracking-wider border border-amber-200">
+                                                        Unpaid / Belum Lunas
+                                                    </span>
+                                                    {/* TAMBAHAN: Lihat BAP saat Invoiced */}
+                                                    {termin.bap && (
+                                                        <Link href={`/admin/pengajuan/${project.id}/bap/cetak?terminId=${termin.id}`} className="text-[10px] bg-white border border-slate-300 text-slate-700 px-3 py-2 rounded-lg font-bold uppercase tracking-wider hover:bg-slate-50 transition-all">
+                                                            Lihat BAP
+                                                        </Link>
+                                                    )}
+                                                    <Link href={`/admin/invoices/${termin.invoice?.id}`} className="text-[10px] bg-white border border-slate-300 text-slate-700 px-3 py-2 rounded-lg font-bold uppercase tracking-wider hover:bg-slate-50 transition-all">
+                                                        Cetak Invoice
+                                                    </Link>
+                                                    <form action={tandaiInvoiceLunas.bind(null, project.id, termin.id, termin.invoice?.id || "")}>
+                                                        <button type="submit" className="text-[10px] bg-teal-600 text-white px-3 py-2 rounded-lg font-bold uppercase tracking-wider hover:bg-teal-700 transition-all shadow-sm">
+                                                            Tandai Lunas
+                                                        </button>
+                                                    </form>
+                                                </>
+                                            )}
+
+                                            {termin.status === "PAID" && (
+                                                <>
+                                                    <span className="text-[10px] bg-green-100 text-green-700 px-3 py-2 rounded-lg font-bold uppercase tracking-wider border border-green-200 flex items-center gap-1">
+                                                        <CheckCircle size={12} /> LUNAS
+                                                    </span>
+                                                    {/* TAMBAHAN: Lihat BAP saat Paid */}
+                                                    {termin.bap && (
+                                                        <Link href={`/admin/pengajuan/${project.id}/bap/cetak?terminId=${termin.id}`} className="text-[10px] bg-white border border-slate-300 text-slate-700 px-3 py-2 rounded-lg font-bold uppercase tracking-wider hover:bg-slate-50 transition-all">
+                                                            Lihat BAP
+                                                        </Link>
+                                                    )}
+                                                    <Link href={`/admin/invoices/${termin.invoice?.id}`} className="text-[10px] bg-white border border-slate-300 text-slate-700 px-3 py-2 rounded-lg font-bold uppercase tracking-wider hover:bg-slate-50 transition-all">
+                                                        Lihat Invoice
+                                                    </Link>
+                                                </>
+                                            )}
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+
+                            {project.contract && (
+                                <div className="flex gap-2 mt-2">
+                                    <Link href={`/admin/spk/${project.contract.id}`} className="flex-1 bg-indigo-50 text-indigo-700 border border-indigo-200 font-bold py-3 rounded-xl text-[10px] md:text-xs uppercase tracking-widest hover:bg-indigo-100 transition-all flex items-center justify-center gap-1.5">
+                                        <FileCheck2 size={16} /> Lengkapi Data
+                                    </Link>
+
+                                    <Link href={`/admin/spk/${project.contract.id}/cetak`} className="flex-1 bg-blue-50 text-blue-700 border border-blue-200 font-bold py-3 rounded-xl text-[10px] md:text-xs uppercase tracking-widest hover:bg-blue-100 transition-all flex items-center justify-center gap-1.5">
+                                        <Printer size={16} /> Cetak SPK
+                                    </Link>
+                                </div>
+                            )}
+                        </div>
+                    )}
                     {project.status === "IN_PROGRESS" && (
                         <div className="bg-blue-50 border border-blue-200 rounded-2xl md:rounded-3xl p-5 md:p-8 text-center shadow-sm">
                             <PlayCircle size={40} className="text-blue-500 mx-auto mb-3 md:mb-4 animate-pulse md:w-12 md:h-12" />
                             <h3 className="font-bold text-blue-900 uppercase tracking-tight text-sm md:text-base">Sedang Dikerjakan</h3>
-                            <p className="text-[11px] md:text-sm text-blue-700 mt-2 mb-5 md:mb-8">Tim sedang melakukan eksekusi di lapangan. Jika sudah selesai, Anda bisa memproses Berita Acara (BAP).</p>
+
+                            {/* TEKS PANDUAN DINAMIS */}
+                            <p className="text-[11px] md:text-sm text-blue-700 mt-2 mb-5 md:mb-8">
+                                Tim sedang melakukan eksekusi di lapangan.
+                                {project.paymentType === "TERMIN"
+                                    ? " Silakan kelola pembuatan BAP dan Invoice melalui panel Manajemen Termin di atas."
+                                    : " Jika sudah selesai, Anda bisa memproses Berita Acara (BAP)."
+                                }
+                            </p>
+
                             <div className="mb-6 flex justify-center">
                                 <RescheduleButton
                                     projectId={project.id}
@@ -300,13 +428,17 @@ export default async function DetailProyekPage({ params }: { params: Promise<{ i
                                 />
                             </div>
 
-                            <Link href={`/admin/pengajuan/${id}/bap`} className="w-full bg-blue-600 text-white font-black py-3.5 md:py-4 rounded-xl md:rounded-2xl hover:bg-blue-700 transition-all shadow-lg shadow-blue-900/20 flex items-center justify-center gap-2 text-[10px] md:text-xs tracking-widest active:scale-[0.98]">
-                                <FileCheck2 size={16} className="md:w-4.5 md:h-4.5" /> BUAT BAP & INVOICE
-                            </Link>
+                            {/* TOMBOL HANYA MUNCUL JIKA NON-TERMIN */}
+                            {project.paymentType !== "TERMIN" && (
+                                <Link href={`/admin/pengajuan/${id}/bap`} className="w-full bg-blue-600 text-white font-black py-3.5 md:py-4 rounded-xl md:rounded-2xl hover:bg-blue-700 transition-all shadow-lg shadow-blue-900/20 flex items-center justify-center gap-2 text-[10px] md:text-xs tracking-widest active:scale-[0.98]">
+                                    <FileCheck2 size={16} className="md:w-4.5 md:h-4.5" /> BUAT BAP & INVOICE
+                                </Link>
+                            )}
                         </div>
                     )}
 
-                    {project.status === "COMPLETED_INVOICED" && (
+                    {/* Tampilkan panel ini HANYA JIKA statusnya COMPLETED_INVOICED DAN BUKAN proyek Termin */}
+                    {project.status === "COMPLETED_INVOICED" && project.paymentType !== "TERMIN" && (
                         <div className="bg-teal-50 border border-teal-200 rounded-2xl md:rounded-3xl p-5 md:p-8 text-center shadow-sm">
                             <FileText size={40} className="text-teal-500 mx-auto mb-3 md:mb-4 md:w-12 md:h-12" />
                             <h3 className="font-bold text-teal-900 uppercase tracking-tight text-sm md:text-base">Menunggu Pembayaran</h3>
@@ -322,9 +454,11 @@ export default async function DetailProyekPage({ params }: { params: Promise<{ i
                                 <Link href={`/admin/pengajuan/${id}/bap/cetak`} className="text-[9px] md:text-[10px] font-bold text-teal-700 bg-white border border-teal-200 py-2.5 md:py-2 rounded-xl md:rounded-lg hover:bg-teal-100 uppercase transition-all flex items-center justify-center text-center">
                                     Lihat BAP
                                 </Link>
-                                <Link href={`/admin/invoices/${project.invoice?.id}`} className="text-[9px] md:text-[10px] font-bold text-teal-700 bg-white border border-teal-200 py-2.5 md:py-2 rounded-xl md:rounded-lg hover:bg-teal-100 uppercase transition-all flex items-center justify-center text-center">
-                                    Lihat Invoice
-                                </Link>
+                                {project.invoices && project.invoices.length > 0 && (
+                                    <Link href={`/admin/invoices/${project.invoices[0].id}`} className="text-[9px] md:text-[10px] font-bold text-teal-700 bg-white border border-teal-200 py-2.5 md:py-2 rounded-xl md:rounded-lg hover:bg-teal-100 uppercase transition-all flex items-center justify-center text-center">
+                                        Lihat Invoice
+                                    </Link>
+                                )}
                             </div>
                         </div>
                     )}
@@ -393,9 +527,11 @@ export default async function DetailProyekPage({ params }: { params: Promise<{ i
                             <p className="text-green-100 text-[11px] md:text-xs mt-1 md:mt-2 mb-5 md:mb-6 leading-relaxed">Seluruh kewajiban pembayaran telah diselesaikan oleh klien.</p>
 
                             <div className="flex gap-2 lg:block lg:space-y-2">
-                                <Link href={`/admin/invoices/${project.invoice?.id}`} className="flex-1 lg:w-full block bg-white text-green-700 font-bold py-3 md:py-3 rounded-xl text-[9px] md:text-[10px] uppercase tracking-widest hover:bg-green-50 transition-all">
-                                    Arsip Invoice
-                                </Link>
+                                {project.paymentType !== "TERMIN" && project.invoices && project.invoices.length > 0 && (
+                                    <Link href={`/admin/invoices/${project.invoices[0].id}`} className="text-[9px] md:text-[10px] font-bold text-teal-700 bg-white border border-teal-200 py-2.5 md:py-2 rounded-xl md:rounded-lg hover:bg-teal-100 uppercase transition-all flex items-center justify-center text-center">
+                                        Lihat Invoice
+                                    </Link>
+                                )}
                                 <Link href="/admin/pengajuan" className="flex-1 lg:w-full block bg-green-700 text-white border border-green-500 font-bold py-3 md:py-3 rounded-xl text-[9px] md:text-[10px] uppercase tracking-widest hover:bg-green-800 transition-all">
                                     Ke Daftar
                                 </Link>
@@ -404,6 +540,6 @@ export default async function DetailProyekPage({ params }: { params: Promise<{ i
                     )}
                 </div>
             </div>
-        </div>
+        </div >
     );
 }

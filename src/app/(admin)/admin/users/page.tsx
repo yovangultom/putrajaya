@@ -17,8 +17,8 @@ export default async function ManagementUserPage() {
     return (
         <div className="p-4 md:p-8 bg-slate-50 min-h-screen">
             <div className="max-w-6xl mx-auto">
-                <h1 className="text-2xl md:text-3xl font-black text-slate-900 mb-8 flex items-center gap-3">
-                    <ShieldCheck className="text-blue-600" size={32} /> MANAJEMEN AKUN KARYAWAN
+                <h1 className="text-xl md:text-2xl font-bold text-black mb-8 flex items-center gap-3">
+                    MANAJEMEN AKUN KARYAWAN
                 </h1>
 
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">

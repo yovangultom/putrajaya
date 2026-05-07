@@ -5,11 +5,23 @@ import { Receipt, Eye, Printer, CheckCircle, Clock, XCircle } from "lucide-react
 
 export default async function DaftarInvoicePage() {
     const invoices = await prisma.invoice.findMany({
-        orderBy: { date: "desc" },
+        orderBy: {
+            date: "desc"
+        },
         include: {
             project: {
-                include: { bap: { include: { items: true } } }
-            }
+                include: {
+                    baps: {
+                        include: {
+                            items: true
+                        }
+                    },
+                    // UBAH 'termin' menjadi 'termins' (pakai 's')
+                    termins: true
+                }
+            },
+            // TAMBAHKAN INI: Agar kita bisa langsung tahu invoice ini untuk termin yang mana
+            termin: true
         }
     });
 
@@ -47,10 +59,10 @@ export default async function DaftarInvoicePage() {
         <div className="p-4 md:p-8 bg-slate-50 min-h-screen">
             {/* Header */}
             <div className="mb-6 md:mb-8">
-                <h1 className="text-xl md:text-3xl font-black text-slate-900 tracking-tight flex items-center gap-2 md:gap-3">
-                    <Receipt className="text-blue-600 w-6 h-6 md:w-8 md:h-8" /> MONITORING INVOICE
+                <h1 className="text-xl md:text-2xl font-bold text-black tracking-tight flex items-center gap-2 md:gap-3">
+                    MONITORING INVOICE
                 </h1>
-                <p className="text-[10px] md:text-sm text-slate-500 mt-1 uppercase tracking-widest font-medium">Rekapitulasi Tagihan & Status Pembayaran</p>
+                <p className="text-xs md:text-sm text-slate-500 mt-1 font-medium">Rekapitulasi Tagihan & Status Pembayaran</p>
             </div>
 
             <div className="bg-white rounded-2xl md:rounded-3xl shadow-sm border border-slate-200 overflow-hidden">
@@ -76,9 +88,6 @@ export default async function DaftarInvoicePage() {
                                 </tr>
                             ) : (
                                 invoices.map((inv) => {
-                                    const totalPekerjaan = inv.project.bap?.items.reduce((acc, item) => acc + (item.qty * item.price), 0) || 0;
-                                    const sisaTagihan = totalPekerjaan - inv.project.dpAmount;
-
                                     return (
                                         <tr key={inv.id} className="hover:bg-slate-50/50 transition-colors">
                                             <td className="px-6 py-4">
@@ -92,12 +101,11 @@ export default async function DaftarInvoicePage() {
                                                 <div className="text-xs text-slate-500 truncate max-w-50">{inv.project.title}</div>
                                             </td>
                                             <td className="px-6 py-4">
-                                                <div className="font-bold text-slate-900">{formatRp(sisaTagihan)}</div>
-                                                <div className="text-[10px] text-slate-400 italic">Nilai Setelah DP</div>
+                                                <div className="font-bold text-slate-900">{formatRp(inv.amount)}</div>
+                                                <div className="text-[10px] text-slate-400 italic">{inv.termin ? `Tagihan ${inv.termin.name}` : 'Tagihan Umum'}</div>
                                             </td>
                                             <td className="px-6 py-4 text-center">
-                                                {/* Panggil fungsi helper untuk Desktop */}
-                                                {renderStatusBadge(inv.project.status, false)}
+                                                {renderStatusBadge(inv.status, false)}
                                             </td>
                                             <td className="px-6 py-4">
                                                 <div className="flex items-center justify-end gap-2">
@@ -134,8 +142,7 @@ export default async function DaftarInvoicePage() {
                         <div className="p-8 text-center text-slate-400 italic text-sm">Belum ada invoice yang diterbitkan.</div>
                     ) : (
                         invoices.map((inv) => {
-                            const totalPekerjaan = inv.project.bap?.items.reduce((acc, item) => acc + (item.qty * item.price), 0) || 0;
-                            const sisaTagihan = totalPekerjaan - inv.project.dpAmount;
+
 
                             return (
                                 <div key={inv.id} className="p-4 bg-white flex flex-col gap-3 hover:bg-slate-50 transition-colors">
@@ -149,8 +156,7 @@ export default async function DaftarInvoicePage() {
                                             </div>
                                         </div>
                                         <div>
-                                            {/* Panggil fungsi helper untuk Mobile */}
-                                            {renderStatusBadge(inv.project.status, true)}
+                                            {renderStatusBadge(inv.status, true)}
                                         </div>
                                     </div>
 
@@ -163,8 +169,8 @@ export default async function DaftarInvoicePage() {
                                     {/* Baris 3: Total & Aksi (Terpisahkan Garis) */}
                                     <div className="flex justify-between items-end mt-2 pt-3 border-t border-slate-100">
                                         <div>
-                                            <div className="font-black text-slate-900 text-base leading-none">{formatRp(sisaTagihan)}</div>
-                                            <div className="text-[9px] text-slate-400 italic mt-1">Nilai Setelah DP</div>
+                                            <div className="font-black text-slate-900 text-base leading-none">{formatRp(inv.amount)}</div>
+                                            <div className="text-[9px] text-slate-400 italic mt-1">{inv.termin ? `Tagihan ${inv.termin.name}` : 'Tagihan Umum'}</div>
                                         </div>
                                         <div className="flex items-center gap-2">
                                             <Link

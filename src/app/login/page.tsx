@@ -49,7 +49,7 @@ export default function LoginPage() {
                         </div>
                     )}
 
-                    <form onSubmit={handleSubmit} className="space-y-6">
+                    <form onSubmit={handleSubmit} method="POST" className="space-y-6">
                         <div>
                             <label className="block text-sm font-medium text-black">Email</label>
                             <input

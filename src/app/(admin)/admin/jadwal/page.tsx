@@ -12,25 +12,29 @@ export default async function JadwalPage() {
         orderBy: { startDate: "desc" }
     });
 
-    const formatDate = (date: Date) => date.toLocaleDateString("id-ID", {
-        day: 'numeric', month: 'short', year: 'numeric'
-    });
+    // PERBAIKAN 1: Buat formatDate lebih aman (tahan banting terhadap nilai null)
+    const formatDate = (date: Date | null | undefined) => {
+        if (!date) return "-"; // Jika tanggal kosong, tampilkan strip
+        return new Date(date).toLocaleDateString("id-ID", {
+            day: 'numeric', month: 'short', year: 'numeric'
+        });
+    };
 
     return (
-        // 1. Hapus 'flex flex-col items-center' agar konten rata kiri (kiri-atas)
         <div className="p-4 md:p-8 bg-slate-50 min-h-screen print:bg-white">
-            {/* 2. Ubah 'max-w-4xl' menjadi 'w-full' (atau max-w-7xl jika tidak ingin terlalu mentok layar) */}
             <div className="w-full">
                 <div className="mb-8">
-                    <h1 className="text-2xl font-black text-slate-900 uppercase tracking-tight">Monitoring Jadwal Lapangan</h1>
-                    <p className="text-sm text-slate-500 italic">Daftar rencana kerja dan realisasi di lapangan.</p>
+                    <h1 className="text-xl md:text-2xl font-bold text-black uppercase tracking-tight">Monitoring Jadwal Lapangan</h1>
+                    <p className="text-xs md:text-sm text-slate-500 mt-1  font-medium">Daftar rencana kerja dan realisasi di lapangan.</p>
                 </div>
 
                 <div className="grid grid-cols-1 gap-6">
                     {projects.map((p) => {
                         const isFinished = p.status === "COMPLETED_INVOICED" || p.status === "PAID";
                         const isStarted = p.status === "IN_PROGRESS";
-                        const isFinishedEarly = isFinished && p.actualEndDate && p.actualEndDate < p.endDate!;
+
+                        // PERBAIKAN 2: Pastikan endDate dan actualEndDate sama-sama ada sebelum dibandingkan
+                        const isFinishedEarly = isFinished && p.actualEndDate && p.endDate && (p.actualEndDate < p.endDate);
 
                         // LOGIKA STATUS DINAMIS
                         let statusLabel = "TERJADWAL";
@@ -49,7 +53,6 @@ export default async function JadwalPage() {
 
                         return (
                             <div key={p.id} className="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden flex flex-col md:flex-row">
-                                {/* Bar Status Warna Samping - MENGGUNAKAN barColor */}
                                 <div className={`w-full md:w-3 h-3 md:h-auto ${barColor}`}></div>
 
                                 <div className="p-6 flex-1">
@@ -62,7 +65,6 @@ export default async function JadwalPage() {
                                             </div>
                                         </div>
                                         <div className="flex flex-col items-end">
-                                            {/* Badge Status - MENGGUNAKAN statusColor & statusLabel */}
                                             <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border ${statusColor}`}>
                                                 {statusLabel}
                                             </span>
@@ -76,7 +78,8 @@ export default async function JadwalPage() {
                                             </p>
                                             <div className="bg-slate-50 p-3 rounded-2xl border border-slate-100">
                                                 <p className="text-sm font-bold text-slate-800">
-                                                    {formatDate(p.startDate!)} — {formatDate(p.endDate!)}
+                                                    {/* PERBAIKAN 3: Hapus tanda seru (!) agar tidak memaksa data */}
+                                                    {formatDate(p.startDate)} — {formatDate(p.endDate)}
                                                 </p>
                                             </div>
                                         </div>
@@ -87,9 +90,9 @@ export default async function JadwalPage() {
                                             </p>
                                             <div className={`p-3 rounded-2xl border ${isFinished ? 'bg-green-50 border-green-100' : 'bg-slate-50 border-slate-100'}`}>
                                                 <p className="text-sm font-bold text-slate-800">
-                                                    {/* Teks Realisasi Dinamis */}
+                                                    {/* PERBAIKAN 4: Hapus tanda seru (!) */}
                                                     {isFinished
-                                                        ? formatDate(p.actualEndDate!)
+                                                        ? formatDate(p.actualEndDate)
                                                         : isStarted
                                                             ? "Sedang Dikerjakan..."
                                                             : "Menunggu Mulai..."

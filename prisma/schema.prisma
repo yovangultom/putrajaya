@@ -1,4 +1,3 @@
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -8,7 +7,6 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-
 model User {
   id            String    @id @default(cuid())
   name          String?
@@ -16,11 +14,11 @@ model User {
   emailVerified DateTime?
   image         String?
   password      String?
-  signatureUrl  String?   
-  role          String    @default("EDITOR") 
+  signatureUrl  String?
+  role          String    @default("EDITOR")
   accounts      Account[]
   sessions      Session[]
-  projects      Project[] 
+  projects      Project[]
 }
 
 model Account {
@@ -29,15 +27,16 @@ model Account {
   type              String
   provider          String
   providerAccountId String
-  refresh_token     String? 
-  access_token      String? 
+  refresh_token     String?
+  access_token      String?
   expires_at        Int?
   token_type        String?
   scope             String?
-  id_token          String? 
+  id_token          String?
   session_state     String?
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
   @@unique([provider, providerAccountId])
 }
 
@@ -49,96 +48,153 @@ model Session {
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
-
 model Project {
-  id              String        @id @default(cuid())
-  title           String        
-  
-  clientName      String        
-  clientCompany   String?       
-  clientPhone     String?       
-  clientAddress   String?       
-  projectLocation String        
+  id    String @id @default(cuid())
+  title String
 
-  status          String        @default("PENGAJUAN") 
-  dpAmount        Float         @default(0) 
-  startDate       DateTime?     
-  endDate         DateTime?     
-  actualEndDate   DateTime?     
+  clientName      String
+  clientCompany   String?
+  clientPhone     String?
+  clientAddress   String?
+  clientKtp       String? // <--- TAMBAHKAN INI
+  projectLocation String
 
+  status        String    @default("PENGAJUAN")
+  paymentType   String    @default("SINGLE")
+  dpAmount      Float     @default(0)
+  startDate     DateTime?
+  endDate       DateTime?
+  actualEndDate DateTime?
 
-  pengajuanItems  PengajuanItem[] 
-  bap             Bap?            
-  invoice         Invoice?        
+  pengajuanItems PengajuanItem[]
+  // --- INI BAGIAN YANG DIPERBAIKI ---
+  contract       Contract? // Ditambahkan: Relasi 1-to-1 ke Contract
+  termins        Termin[] // Ditambahkan: Relasi One-to-Many ke Termin
+  baps           Bap[] // Diubah: dari bap Bap? menjadi baps Bap[] (Array)
+  invoices       Invoice[] // Diubah: dari invoice Invoice? menjadi invoices Invoice[] (Array)
+  // ----------------------------------
+  expenses       ProjectExpense[]
 
-  expenses        ProjectExpense[]
-
-  userId          String
-  user            User          @relation(fields: [userId], references: [id])
-  createdAt       DateTime      @default(now())
-  updatedAt       DateTime      @updatedAt
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model PengajuanItem {
-  id          String  @id @default(cuid())
-  description String  
-  qty         Float   
-  unit        String  
-  price       Float   
-  
-  projectId   String
-  project     Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  id          String @id @default(cuid())
+  description String
+  qty         Float
+  unit        String
+  price       Float
+
+  projectId String
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
 }
 
+model Contract {
+  id             String @id @default(cuid())
+  contractNumber String @unique
+
+  // Field dinamis sesuai kesepakatan
+  scopeOfWork       String? @default("Sesuai dengan rincian pengajuan harga.")
+  paymentTerms      String? // Penjelasan sistem pembayaran
+  obligations       String? // Kewajiban Pihak Kedua
+  changesPolicy     String? // Kebijakan Perubahan Pekerjaan
+  disputeResolution String? // Penyelesaian Perselisihan
+
+  // --- TAMBAHAN BARU UNTUK PIHAK KEDUA ---
+  pihakKeduaNama   String? @default("Ratno Palupi")
+  pihakKeduaKtp    String? @default("3216061304770020")
+  pihakKeduaAlamat String? @default("Kp. Siluman RT.01 RW.02 No.123, Mangunjaya, Tambun Selatan, Bekasi")
+  // ---------------------------------------
+
+  projectId String  @unique
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// MODEL BARU: Rencana Pembayaran
+model Termin {
+  id          String    @id @default(cuid())
+  name        String // Contoh: "DP 30%", "Termin 1 (50%)", "Pelunasan"
+  percentage  Float
+  amount      Float
+  description String? // <--- TAMBAHKAN INI UNTUK MENYIMPAN SKUP PEKERJAAN
+  dueDate     DateTime?
+  status      String    @default("PENDING") // PENDING, INVOICED, PAID
+
+  projectId String
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  invoice Invoice?
+  bap     Bap?
+}
+
+// UPDATE MODEL: BAP
 model Bap {
-  id          String   @id @default(cuid())
-  bapNumber   String   @unique  
-  date        DateTime @default(now())
-  notes       String?  
+  id        String   @id @default(cuid())
+  bapNumber String   @unique
+  name      String   @default("Berita Acara Pekerjaan")
+  date      DateTime @default(now())
+  notes     String?
 
-  projectId   String   @unique
-  project     Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  // Hapus @unique pada projectId agar 1 proyek bisa banyak BAP
+  projectId String
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
 
-  items       BapItem[]       
-  attachments BapAttachment[] 
+  terminId String? @unique
+  termin   Termin? @relation(fields: [terminId], references: [id], onDelete: Cascade)
+
+  items       BapItem[]
+  attachments BapAttachment[]
 }
 
 model BapItem {
-  id          String  @id @default(cuid())
-  description String  
+  id          String @id @default(cuid())
+  description String
   qty         Float
   unit        String
-  price       Float   
-  
-  bapId       String
-  bap         Bap     @relation(fields: [bapId], references: [id], onDelete: Cascade)
+  price       Float
+
+  bapId String
+  bap   Bap    @relation(fields: [bapId], references: [id], onDelete: Cascade)
 }
 
 model BapAttachment {
-  id          String  @id @default(cuid())
-  imageUrl    String  
-  description String  
-  
-  bapId       String
-  bap         Bap     @relation(fields: [bapId], references: [id], onDelete: Cascade)
+  id          String @id @default(cuid())
+  imageUrl    String
+  description String
+
+  bapId String
+  bap   Bap    @relation(fields: [bapId], references: [id], onDelete: Cascade)
 }
 
+// UPDATE MODEL: Invoice
 model Invoice {
-  id            String   @id @default(cuid())
-  invoiceNumber String   @unique 
-  date          DateTime @default(now())
-  dueDate       DateTime? 
-  terbilang     String   
+  id            String    @id @default(cuid())
+  invoiceNumber String    @unique
+  date          DateTime  @default(now())
+  dueDate       DateTime?
+  terbilang     String
+  amount        Float     @default(0)
+  status        String    @default("UNPAID")
 
-  projectId     String   @unique
-  project       Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  // Hapus @unique pada projectId agar 1 proyek bisa banyak Invoice
+  projectId String
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  terminId String? @unique
+  termin   Termin? @relation(fields: [terminId], references: [id], onDelete: SetNull)
 }
 
 model DocumentCounter {
-  id          String  @id @default(cuid())
-  year        Int     
-  type        String  
-  lastNumber  Int     @default(0) 
+  id         String @id @default(cuid())
+  year       Int
+  type       String
+  lastNumber Int    @default(0)
 
   @@unique([year, type])
 }
@@ -147,63 +203,62 @@ model ProjectExpense {
   id          String   @id @default(cuid())
   projectId   String
   project     Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  description String   
-  amount      Float    
-  date        DateTime @default(now()) 
-  
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  description String
+  amount      Float
+  date        DateTime @default(now())
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
-
 model Worker {
-  id                  String       @id @default(cuid())
+  id                  String @id @default(cuid())
   name                String
-  role                String       
-  dailyWage           Float        
-  overtimeRatePerHour Float        @default(0) 
-  
-  attendances         Attendance[]
-  payslips            Payslip[]
-  
-  createdAt           DateTime     @default(now())
-  updatedAt           DateTime     @updatedAt
+  role                String
+  dailyWage           Float
+  overtimeRatePerHour Float  @default(0)
+
+  attendances Attendance[]
+  payslips    Payslip[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model Attendance {
-  id            String    @id @default(cuid())
-  workerId      String
-  worker        Worker    @relation(fields: [workerId], references: [id], onDelete: Cascade)
-  
-  date          DateTime  @default(now()) 
-  
+  id       String @id @default(cuid())
+  workerId String
+  worker   Worker @relation(fields: [workerId], references: [id], onDelete: Cascade)
+
+  date DateTime @default(now())
+
   // 1 = Hadir Penuh, 0.5 = Setengah Hari, 0 = Tidak Hadir/Izin
-  status        Float     @default(1.0) 
-  
-  overtimeHours Float     @default(0) 
-  
-  notes         String?   
-  
-  createdAt     DateTime  @default(now())
+  status Float @default(1.0)
+
+  overtimeHours Float @default(0)
+
+  notes String?
+
+  createdAt DateTime @default(now())
 }
 
 model Payslip {
-  id              String   @id @default(cuid())
-  workerId        String
-  worker          Worker   @relation(fields: [workerId], references: [id], onDelete: Cascade)
-  
-  periodStart     DateTime 
-  periodEnd       DateTime 
-  
-  totalDays       Float    
-  totalOvertime   Float    
-  
-  bonus           Float    @default(0) 
-  kasbonDeduction Float    @default(0) 
-  
-  netPay          Float    
-  
-  createdAt       DateTime @default(now())
+  id       String @id @default(cuid())
+  workerId String
+  worker   Worker @relation(fields: [workerId], references: [id], onDelete: Cascade)
+
+  periodStart DateTime
+  periodEnd   DateTime
+
+  totalDays     Float
+  totalOvertime Float
+
+  bonus           Float @default(0)
+  kasbonDeduction Float @default(0)
+
+  netPay Float
+
+  createdAt DateTime @default(now())
 }
 
 model CompanyExpense {
@@ -216,18 +271,18 @@ model CompanyExpense {
 }
 
 model Portfolio {
-  id             String             @id @default(cuid())
+  id             String   @id @default(cuid())
   title          String
-  slug           String             @unique
+  slug           String   @unique
   client         String
   location       String
   category       String
   completionDate DateTime
-  image          String             
+  image          String
   description    String
-  createdAt      DateTime           @default(now())
-  
-  gallery        PortfolioGallery[] 
+  createdAt      DateTime @default(now())
+
+  gallery PortfolioGallery[]
 }
 
 model PortfolioGallery {

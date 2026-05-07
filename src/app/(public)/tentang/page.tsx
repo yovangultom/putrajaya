@@ -37,7 +37,7 @@ export default function TentangPage() {
             </section>
 
             {/* === SECTION 2: VISI & MISI === */}
-            <section className="py-20">
+            <section className="py-10">
                 <div className="container mx-auto px-6">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-12 max-w-5xl mx-auto">
 
@@ -90,7 +90,7 @@ export default function TentangPage() {
             </section>
 
             {/* === SECTION 3: STATEMENT KEUNGGULAN (BANNER) === */}
-            <section className="bg-gradient-to-r from-[#F49414] to-orange-500 py-16 relative overflow-hidden">
+            <section className="bg-gradient-to-r from-[#F49414] to-orange-500 py-10 relative overflow-hidden">
                 <div className="absolute inset-0 opacity-10 bg-[url('/patterns/autocad.svg')] bg-cover mix-blend-overlay"></div>
                 <div className="container mx-auto px-6 relative z-10">
                     <motion.div
@@ -111,7 +111,7 @@ export default function TentangPage() {
             </section>
 
             {/* === SECTION 4: KEPEMIMPINAN & TATA KELOLA === */}
-            <section className="py-24 bg-white">
+            <section className="py-10 bg-white">
                 <div className="container mx-auto px-6">
                     <div className="max-w-5xl mx-auto">
                         <div className="text-center mb-16">
