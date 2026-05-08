@@ -12,12 +12,17 @@ export default function CalendarSummary({ projects }: { projects: any[] }) {
 
     const monthName = currentDate.toLocaleDateString("id-ID", { month: "long", year: "numeric" });
 
-    // Fungsi cek apakah ada proyek di tanggal tertentu
     const getProjectsForDate = (day: number) => {
-        const checkDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), day);
+        // Buat tanggal kalender dan set waktunya tepat ke 00:00:00
+        const checkDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), day, 0, 0, 0, 0).getTime();
+
         return projects.filter(p => {
-            const start = new Date(p.startDate);
-            const end = new Date(p.endDate);
+            if (!p.startDate || !p.endDate) return false;
+
+            // Ambil tanggal proyek dan reset waktunya ke 00:00:00 agar perbandingannya setara
+            const start = new Date(p.startDate).setHours(0, 0, 0, 0);
+            const end = new Date(p.endDate).setHours(0, 0, 0, 0);
+
             return checkDate >= start && checkDate <= end;
         });
     };
@@ -51,25 +56,39 @@ export default function CalendarSummary({ projects }: { projects: any[] }) {
                     const activeProjects = getProjectsForDate(day);
                     const hasProject = activeProjects.length > 0;
 
-                    // Warna berdasarkan status proyek pertama yang ditemukan
-                    const statusColor = activeProjects[0]?.status === "IN_PROGRESS" ? "bg-amber-500" : "bg-blue-600";
+                    // PERUBAHAN DI SINI: Cek semua status proyek di hari tersebut secara independen
+                    const hasInProgress = activeProjects.some(p => p.status === "IN_PROGRESS");
+                    const hasScheduled = activeProjects.some(p => p.status !== "IN_PROGRESS"); // Tangkap status DEAL_SCHEDULED / dll
 
                     return (
-                        <div key={day} className="relative group flex flex-col items-center py-2">
+                        <div key={day} className="relative group flex flex-col items-center py-2 hover:bg-slate-50 rounded-lg transition-colors cursor-default">
                             <span className={`text-xs font-bold ${hasProject ? 'text-slate-900' : 'text-slate-400'}`}>
                                 {day}
                             </span>
 
                             {hasProject && (
                                 <>
-                                    <div className={`w-1.5 h-1.5 rounded-full mt-1 ${statusColor} shadow-sm shadow-blue-900/40`}></div>
+                                    {/* Wadah titik-titik dibuat flex agar berjejer ke samping */}
+                                    <div className="flex gap-1 mt-1 h-1.5 items-center justify-center">
+                                        {/* Jika ada proyek terjadwal, tampilkan titik biru */}
+                                        {hasScheduled && (
+                                            <div className="w-1.5 h-1.5 rounded-full bg-blue-600 shadow-sm shadow-blue-900/40"></div>
+                                        )}
+                                        {/* Jika ada proyek berjalan, tampilkan titik oranye */}
+                                        {hasInProgress && (
+                                            <div className="w-1.5 h-1.5 rounded-full bg-amber-500 shadow-sm shadow-amber-900/40"></div>
+                                        )}
+                                    </div>
 
                                     {/* Tooltip saat di-hover (Hanya muncul di Desktop) */}
-                                    <div className="absolute bottom-full mb-2 hidden group-hover:block z-50 w-40">
-                                        <div className="bg-slate-900 text-white text-[9px] p-2 rounded-xl shadow-xl border border-slate-700">
+                                    <div className="absolute bottom-full mb-2 hidden group-hover:block z-[60] w-48 -ml-20">
+                                        <div className="bg-slate-900 text-white text-[10px] p-2.5 rounded-xl shadow-xl border border-slate-700 space-y-1.5">
                                             {activeProjects.map((ap, idx) => (
-                                                <div key={idx} className="border-b border-slate-700 last:border-0 py-1 font-black uppercase tracking-tighter">
-                                                    🏗️ {ap.title}
+                                                <div key={idx} className="border-b border-slate-700 last:border-0 pb-1.5 last:pb-0 flex items-start gap-1.5">
+                                                    <div className={`mt-0.5 shrink-0 w-1.5 h-1.5 rounded-full ${ap.status === "IN_PROGRESS" ? "bg-amber-500" : "bg-blue-600"}`}></div>
+                                                    <span className="font-bold uppercase tracking-tighter leading-tight">
+                                                        {ap.title}
+                                                    </span>
                                                 </div>
                                             ))}
                                         </div>
