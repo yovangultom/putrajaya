@@ -1,11 +1,13 @@
-import { MetadataRoute } from 'next'
+// src/app/robots.ts
+import { MetadataRoute } from "next";
 
 export default function robots(): MetadataRoute.Robots {
   return {
     rules: {
-      userAgent: '*', // Mengizinkan semua bot search engine (Google, Bing, dll)
-      allow: '/',     // Mengizinkan bot merayapi seluruh halaman
+      userAgent: "*",
+      allow: "/",
+      disallow: "/admin/", // 👈 Tambahkan ini agar Google menjauhi area Admin
     },
-    sitemap: 'https://jasacoring.co.id/sitemap.xml', // Path ke sitemap Anda
-  }
+    sitemap: "https://jasacoring.co.id/sitemap.xml",
+  };
 }
