@@ -72,7 +72,12 @@ export default async function InvoicePrintPage({ params, searchParams }: { param
             termin: true,
             project: {
                 include: {
-                    pengajuanItems: true
+                    pengajuanItems: true,
+                    baps: {
+                        include: {
+                            items: true
+                        }
+                    }
                 }
             }
         }
@@ -83,7 +88,8 @@ export default async function InvoicePrintPage({ params, searchParams }: { param
 
     const project = invoice.project;
     const termin = invoice.termin;
-    const rincianPekerjaan = project.pengajuanItems || [];
+    const bapItems = project.baps?.[0]?.items;
+    const rincianPekerjaan = bapItems && bapItems.length > 0 ? bapItems : (project.pengajuanItems || []);
 
     // 2. KALKULASI DINAMIS (Bisa Termin, Bisa Non-Termin)
     let grandTotal = 0;
@@ -105,7 +111,7 @@ export default async function InvoicePrintPage({ params, searchParams }: { param
         const totalNilaiProyek = rincianPekerjaan.reduce((acc: number, item: any) => acc + (item.qty * item.price), 0);
 
         // PERBAIKAN: Grand Total menampilkan nilai proyek UTUH (tidak dikurangi DP)
-        grandTotal = totalNilaiProyek;
+        grandTotal = invoice.amount;
 
         titlePenagihan = project.dpAmount > 0 ? "Pelunasan Sisa Pembayaran Pekerjaan" : "Pembayaran Penuh (100%) Pekerjaan";
         detailPenagihan = project.dpAmount > 0

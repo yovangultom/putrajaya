@@ -122,7 +122,7 @@ export async function simpanBapDanInvoice(formData: FormData) {
           create: {
             invoiceNumber: invoiceNumber,
             terbilang: "Akan dikalkulasi otomatis",
-            amount: sisaTagihan, // Nominal akan langsung masuk ke database!
+            amount: sisaTagihan, // Nominal total yang dikurangi DP
           },
         },
       },

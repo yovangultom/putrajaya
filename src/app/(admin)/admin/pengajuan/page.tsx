@@ -21,9 +21,13 @@ export default async function DaftarPengajuanPage() {
             user: true,
             pengajuanItems: true,
             invoices: true,
-            baps: true,
-            termins: { orderBy: { id: 'asc' } }, // <-- Tambahkan ini
-            contract: true   // <-- Tambahkan ini
+            termins: { orderBy: { id: 'asc' } },
+            contract: true,
+            baps: {
+                include: {
+                    items: true
+                }
+            }
         }
     });
 
@@ -34,7 +38,7 @@ export default async function DaftarPengajuanPage() {
             case 'IN_PROGRESS': return 'bg-blue-50 text-blue-600 border-blue-200';
             case 'COMPLETED_INVOICED': return 'bg-teal-50 text-teal-600 border-teal-200';
             case 'PAID': return 'bg-green-50 text-green-700 border-green-300';
-            case 'CANCELLED': return 'bg-red-50 text-red-600 border-red-200'; // 2. Tambahkan style untuk Cancelled
+            case 'CANCELLED': return 'bg-red-50 text-red-600 border-red-200';
             default: return 'bg-slate-100 text-slate-600 border-slate-200';
         }
     };
@@ -49,7 +53,7 @@ export default async function DaftarPengajuanPage() {
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 md:mb-8">
                 <div>
                     <h1 className="text-xl md:text-2xl font-bold text-black tracking-tight">DATA PENGAJUAN PROYEK</h1>
-                    <p className="text-xs md:text-sm text-slate-500 mt-1  font-medium">Pantau seluruh riwayat pekerjaan dari Penawaran hingga Invoice.</p>
+                    <p className="text-xs md:text-sm text-slate-500 mt-1 font-medium">Pantau seluruh riwayat pekerjaan dari Penawaran hingga Invoice.</p>
                 </div>
                 <Link
                     href="/admin/pengajuan/baru"
@@ -71,6 +75,19 @@ export default async function DaftarPengajuanPage() {
                         const totalEstimasi = item.pengajuanItems.reduce((acc, curr) => acc + (curr.qty * curr.price), 0);
                         const hasDocuments = item.status === "COMPLETED_INVOICED" || item.status === "PAID";
 
+                        // PERBAIKAN LOGIKA MOBILE: 
+                        // Abaikan BAP Aktual jika ini adalah Proyek Termin
+                        const bapItems = item.baps?.[0]?.items;
+                        const isSelesaiAktual = item.paymentType !== "TERMIN" && bapItems && bapItems.length > 0;
+
+                        const totalNilai = isSelesaiAktual
+                            ? bapItems.reduce((acc: number, curr: any) => acc + (curr.qty * curr.price), 0)
+                            : totalEstimasi;
+
+                        const labelNilai = item.paymentType === "TERMIN"
+                            ? "Nilai Proyek:"
+                            : (isSelesaiAktual ? "Total Aktual:" : "Estimasi:");
+
                         return (
                             <div key={item.id} className="bg-white rounded-2xl shadow-sm border border-slate-200 p-5 flex flex-col gap-4">
                                 {/* Baris 1: Judul & Status */}
@@ -82,17 +99,16 @@ export default async function DaftarPengajuanPage() {
                                         </div>
                                     </div>
                                     <span className={`inline-flex items-center justify-center px-3 py-1.5 rounded-full text-[9px] font-black uppercase tracking-tighter border text-center ${getStatusStyle(item.status)}`}>
-                                        {/* 3. Gunakan kamus penerjemah di sini */}
                                         {statusPenerjemah[item.status] || item.status}
                                     </span>
                                 </div>
 
                                 {/* Baris 2: Info Klien & Lokasi */}
                                 <div className="bg-slate-50 rounded-xl p-3 border border-slate-100">
-                                    <div className="font-bold text-slate-800  text-sm">{item.clientName}</div>
+                                    <div className="font-bold text-slate-800 text-sm">{item.clientName}</div>
                                     <div className="text-slate-500 text-xs mt-1 leading-relaxed">{item.projectLocation}</div>
                                     <div className="mt-3 pt-3 border-t border-slate-200 text-xs font-bold text-slate-700">
-                                        Estimasi: <span className="text-blue-600">{formatRupiah(totalEstimasi)}</span>
+                                        {labelNilai} <span className={isSelesaiAktual ? "text-teal-600" : "text-blue-600"}>{formatRupiah(totalNilai)}</span>
                                     </div>
                                 </div>
 
@@ -145,12 +161,25 @@ export default async function DaftarPengajuanPage() {
                                     const totalEstimasi = item.pengajuanItems.reduce((acc, curr) => acc + (curr.qty * curr.price), 0);
                                     const hasDocuments = item.status === "COMPLETED_INVOICED" || item.status === "PAID";
 
+                                    // PERBAIKAN LOGIKA DESKTOP: 
+                                    // Abaikan BAP Aktual jika ini adalah Proyek Termin
+                                    const bapItems = item.baps?.[0]?.items;
+                                    const isSelesaiAktual = item.paymentType !== "TERMIN" && bapItems && bapItems.length > 0;
+
+                                    const totalNilai = isSelesaiAktual
+                                        ? bapItems.reduce((acc: number, curr: any) => acc + (curr.qty * curr.price), 0)
+                                        : totalEstimasi;
+
+                                    const labelNilai = item.paymentType === "TERMIN"
+                                        ? "Nilai Proyek:"
+                                        : (isSelesaiAktual ? "Total Aktual:" : "Estimasi:");
+
                                     return (
                                         <tr key={item.id} className="hover:bg-slate-50/50 transition-colors">
                                             <td className="px-6 py-4">
                                                 <div className="font-bold text-slate-900 text-base">{item.title}</div>
                                                 <div className="text-xs text-slate-500 mt-1 font-semibold">
-                                                    Estimasi: <span className="text-blue-600">{formatRupiah(totalEstimasi)}</span>
+                                                    {labelNilai} <span className={isSelesaiAktual ? "text-teal-600" : "text-blue-600"}>{formatRupiah(totalNilai)}</span>
                                                 </div>
                                                 <div className="text-[10px] text-slate-400 font-medium uppercase mt-1">
                                                     Dibuat: {new Date(item.createdAt).toLocaleDateString("id-ID")}
@@ -163,7 +192,6 @@ export default async function DaftarPengajuanPage() {
                                             <td className="px-6 py-4 text-center">
                                                 <div className="flex items-center justify-center">
                                                     <span className={`inline-flex items-center justify-center min-w-30 px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-tighter border ${getStatusStyle(item.status)}`}>
-                                                        {/* 4. Gunakan kamus penerjemah di sini juga */}
                                                         {statusPenerjemah[item.status] || item.status}
                                                     </span>
                                                 </div>

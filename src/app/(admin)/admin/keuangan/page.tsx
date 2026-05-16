@@ -73,7 +73,14 @@ export default async function KeuanganPage({ searchParams }: { searchParams: Pro
             paymentType: { not: "TERMIN" }, // Hanya ambil yang NON-TERMIN
             ...(!isRingkasan ? { updatedAt: { gte: startDate, lte: endDate } } : {})
         },
-        include: { pengajuanItems: true, expenses: true }
+        // PERBAIKAN 1: Masukkan query baps > items untuk perhitungan Laba Aktual
+        include: {
+            pengajuanItems: true,
+            expenses: true,
+            baps: {
+                include: { items: true }
+            }
+        }
     });
 
     // B. Proyek Termin (Ambil dari Invoice Termin yang sudah Lunas)
@@ -94,9 +101,15 @@ export default async function KeuanganPage({ searchParams }: { searchParams: Pro
     // Gabungkan Ketiganya
     const kasMasukData = [
         ...paidSingleProjects.map(proj => {
-            const grossTotal = proj.pengajuanItems.reduce((sum, item) => sum + (item.qty * item.price), 0);
+            // PERBAIKAN 2: Jika proyek sudah selesai (punya BAP), hitung gross dari BAP. Jika belum, dari Pengajuan
+            const isSelesai = proj.baps && proj.baps.length > 0;
+            const itemsToCalculate = isSelesai ? proj.baps[0].items : proj.pengajuanItems;
+
+            const grossTotal = itemsToCalculate.reduce((sum, item) => sum + (item.qty * item.price), 0);
             const projectExpenses = proj.expenses.reduce((sum, exp) => sum + exp.amount, 0);
+
             const netProfit = grossTotal - projectExpenses;
+
             return {
                 id: `proj-${proj.id}`,
                 date: proj.updatedAt,
