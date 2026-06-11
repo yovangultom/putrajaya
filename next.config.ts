@@ -21,6 +21,32 @@ const nextConfig: NextConfig = {
       ],
     },
   },
+
+  // 👇 TAMBAHKAN FUNGSI REDIRECTS DI SINI
+  async redirects() {
+    return [
+      {
+        source: "/tentang-kami",
+        destination: "/tentang",
+        permanent: true, // Status 301 Redirect (Permanen) untuk SEO
+      },
+      {
+        source: "/layanan/jasa-coring-beton",
+        destination: "/layanan/jasa-coring",
+        permanent: true,
+      },
+      {
+        source: "/layanan/jasa-konstruksi",
+        destination: "/layanan/konstruksi-umum",
+        permanent: true,
+      },
+      {
+        source: "/layanan/konstruksi",
+        destination: "/layanan/konstruksi-umum",
+        permanent: true,
+      },
+    ];
+  },
 };
 
 export default nextConfig;
