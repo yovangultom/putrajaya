@@ -11,7 +11,7 @@ const servicesDetail = {
         icon: <Building2 size={48} />,
         image: "/images/services/Layanan_KonstruksiUmum.jpg",
         description: "Layanan pembangunan dan renovasi menyeluruh untuk berbagai skala proyek sipil.",
-        content: "CV Putra Jaya melayani pengerjaan konstruksi umum mulai dari tahap persiapan lahan hingga penyelesaian akhir (finishing). Kami mengutamakan kekuatan struktur dan estetika hasil akhir.",
+        content: "PT Putra Jaya Teknik Mandiri melayani pengerjaan konstruksi umum mulai dari tahap persiapan lahan hingga penyelesaian akhir (finishing). Kami mengutamakan kekuatan struktur dan estetika hasil akhir.",
         features: ["Pembangunan Ruko & Rumah", "Renovasi Bangunan", "Pekerjaan Infrastruktur Jalan", "Pengecoran & Pembetonan"]
     },
     "perencanaan-konstruksi": {

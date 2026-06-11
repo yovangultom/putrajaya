@@ -22,7 +22,7 @@ export default function ContactAndMap() {
                         </h3>
 
                         <p className="text-white/80 mb-8 leading-relaxed font-medium">
-                            Siap memulai proyek konstruksi atau coring Anda? Tim CV Putra Jaya siap memberikan penawaran harga terbaik dan solusi teknis yang efisien.
+                            Siap memulai proyek konstruksi atau coring Anda? Tim PT Putra Jaya Teknik Mandiri siap memberikan penawaran harga terbaik dan solusi teknis yang efisien.
                         </p>
 
                         {/* Card Alamat Singkat */}

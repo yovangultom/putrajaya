@@ -149,7 +149,7 @@ export default async function CetakMassalSlipPage({ searchParams }: { searchPara
                                                         />
                                                     </div>
                                                     <div>
-                                                        <h1 className="text-sm sm:text-base md:text-lg print:text-[12pt]font-black print:font-bold text-black tracking-tighter uppercase leading-none">CV. PUTRA JAYA</h1>
+                                                        <h1 className="text-sm sm:text-base md:text-lg print:text-[12pt]font-black print:font-bold text-black tracking-tighter uppercase leading-none">PT PUTRA JAYA TEKNIK MANDIRI</h1>
                                                         <p className="text-[6px] sm:text-[7px] md:text-[8px] print:text-[8px] leading-tight mt-0.5 md:mt-1 print:mt-0.5 text-black uppercase font-bold">
                                                             Alamat: Jl. KH Mochammad RT.01 RW.02 No.86, <br /> Kelurahan Mangunjaya, Kecamatan Tambun Selatan, <br className="md:hidden print:hidden" />Kab. Bekasi 17510<br />
                                                             WhatsApp: 087888431444
@@ -250,7 +250,7 @@ export default async function CetakMassalSlipPage({ searchParams }: { searchPara
                                                 </div>
                                                 <div>
                                                     <p className="mb-6 sm:mb-8 print:mb-8 text-right text-[8px] sm:text-[9px] md:text-[10px] print:text-[10pt]">{formatDate(payslip.createdAt)}</p>
-                                                    <p className="font-medium uppercase underline print:text-[10pt]">CV PUTRA JAYA</p>
+                                                    <p className="font-medium uppercase underline print:text-[10pt]">PT PUTRA JAYA TEKNIK MANDIRI</p>
                                                 </div>
                                             </div>
                                         </div>

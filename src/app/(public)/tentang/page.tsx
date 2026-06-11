@@ -28,7 +28,7 @@ export default function TentangPage() {
                             transition={{ delay: 0.2 }}
                             className="text-lg md:text-xl text-white/80 leading-relaxed font-medium"
                         >
-                            CV. Putra Jaya merupakan perusahaan yang bergerak di bidang Konstruksi serta menyediakan berbagai jasa seperti perbaikan atau jual beli genset, coring dan chemical anchor dengan standar mutu tinggi dan ketepatan waktu dalam setiap pengerjaan.
+                            PT Putra Jaya Teknik Mandiri merupakan perusahaan yang bergerak di bidang Konstruksi serta menyediakan berbagai jasa seperti perbaikan atau jual beli genset, coring dan chemical anchor dengan standar mutu tinggi dan ketepatan waktu dalam setiap pengerjaan.
                             <br /><br />
                             Dengan dukungan tim profesional dan pengalaman di berbagai proyek pemerintah maupun swasta, kami senantiasa mengutamakan kualitas, keselamatan kerja, dan kepuasan klien sebagai prioritas utama.
                         </motion.p>

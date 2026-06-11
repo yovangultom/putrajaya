@@ -25,7 +25,7 @@ export default function AboutSection() {
                             Membangun dengan <span className="text-[#F49414]">Kualitas</span>, Tumbuh dengan <span className="text-[#277BBE]">Kepercayaan</span>.
                         </h3>
                         <p className="text-slate-600 leading-relaxed mb-6 text-lg">
-                            CV. Putra Jaya merupakan perusahaan yang bergerak di bidang konstruksi, menyediakan spesialisasi jasa seperti instalasi & service genset, coring beton, hingga chemical anchor dengan standar mutu tinggi.
+                            PT. Putra Jaya Teknik Mandiri merupakan perusahaan yang bergerak di bidang konstruksi, menyediakan spesialisasi jasa seperti instalasi & service genset, coring beton, hingga chemical anchor dengan standar mutu tinggi.
                         </p>
                         <p className="text-slate-600 leading-relaxed mb-10 text-lg">
                             Dengan dukungan tim profesional, kami senantiasa mengutamakan kualitas, keselamatan kerja, dan kepuasan klien dalam setiap proyek pemerintah maupun swasta.

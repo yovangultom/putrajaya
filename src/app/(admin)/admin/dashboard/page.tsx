@@ -38,7 +38,7 @@ export default async function DashboardPage() {
     <div className="p-4 md:p-8 bg-slate-50 min-h-screen">
       <div className="mb-8">
         <h1 className="text-xl md:text-2xl font-bold text-black uppercase tracking-tight">Dashboard Admin</h1>
-        <p className="text-xs md:text-sm text-slate-500 mt-1  font-medium">Ringkasan operasional CV Putra Jaya.</p>
+        <p className="text-xs md:text-sm text-slate-500 mt-1  font-medium">Ringkasan operasional PT PUTRA JAYA TEKNIK MANDIRI.</p>
       </div>
 
       {/* PERUBAHAN DI SINI: flex-col-reverse diubah menjadi flex-col */}
@@ -46,7 +46,7 @@ export default async function DashboardPage() {
 
         <div className="lg:col-span-2 space-y-6 md:space-y-8">
           {/* Kartu Sambutan */}
-          <div className="bg-white rounded-3xl shadow-sm border border-slate-200 p-6 md:p-8">
+          {/* <div className="bg-white rounded-3xl shadow-sm border border-slate-200 p-6 md:p-8">
             <h2 className="text-xl md:text-2xl font-black text-slate-900 uppercase leading-tight">
               Halo, {session?.user?.name?.split(' ')[0] || 'Admin'}! 👋
             </h2>
@@ -54,7 +54,7 @@ export default async function DashboardPage() {
               Anda masuk sebagai <span className="font-bold text-blue-600 px-3 py-1 bg-blue-50 rounded-full border border-blue-100 uppercase text-[10px] tracking-widest">{(session?.user as any)?.role || 'ADMIN'}</span>.
               Pantau seluruh progres pekerjaan dan jadwal tim di lapangan hari ini.
             </p>
-          </div>
+          </div> */}
 
           {/* Grid Statistik Operasional */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">

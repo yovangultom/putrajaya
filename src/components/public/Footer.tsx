@@ -35,9 +35,14 @@ export default function Footer() {
                                     className="w-8 h-8 md:w-10 md:h-10 object-contain"
                                 />
                             </div>
-                            <span className="text-xl md:text-2xl font-black tracking-tighter text-white">
-                                PUTRA<span className="text-[#F49414]">JAYA</span>
-                            </span>
+                            <div className="flex flex-col justify-center">
+                                <span className="text-lg md:text-xl font-black tracking-tight leading-none text-white">
+                                    PUTRA JAYA
+                                </span>
+                                <span className="text-[10px] md:text-xs font-bold tracking-[0.2em] mt-1 text-[#F49414]">
+                                    TEKNIK MANDIRI
+                                </span>
+                            </div>
                         </Link>
                         <p className="text-white/70 text-sm leading-relaxed">
                             Mitra terpercaya Anda untuk solusi konstruksi terintegrasi. Kami menghadirkan standar mutu tinggi, presisi, dan ketepatan waktu dalam setiap proyek sipil dan teknis.
@@ -116,7 +121,7 @@ export default function Footer() {
             {/* Copyright Bar */}
             <div className="border-t border-white/10 bg-black/20">
                 <div className="container mx-auto px-6 py-4 flex flex-col md:flex-row justify-between items-center gap-3 text-center md:text-left text-xs text-white/50">
-                    <p>&copy; {currentYear} CV. Putra Jaya. All rights reserved.</p>
+                    <p>&copy; {currentYear} PT Putra Jaya Teknik Mandiri. All rights reserved.</p>
                 </div>
             </div>
         </footer>

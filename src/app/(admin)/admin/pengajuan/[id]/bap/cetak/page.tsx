@@ -112,8 +112,8 @@ export default async function BapPrintPage({ params, searchParams }: { params: P
                         <div className="flex justify-start items-center p-2">
                             <Image src="/PutraJaya_Logo.png" alt="Logo" width={64} height={64} className="object-contain w-10 h-10 md:w-16 md:h-16 print:w-16 print:h-16" />
                         </div>
-                        <div className="flex-1 flex items-center justify-center font-black text-lg md:text-3xl print:text-[20pt] text-center">
-                            CV PUTRA JAYA
+                        <div className="flex-1 flex items-center justify-center font-black text-lg md:text-3xl print:text-[18pt] text-center">
+                            PT PUTRA JAYA TEKNIK MANDIRI
                         </div>
                         <div className="border-l-2 border-black w-20 md:w-32 print:w-28 flex items-center justify-center font-bold text-gray-500 text-sm md:text-xl print:text-[14pt] print:text-gray-600">
                             BAPP
@@ -126,7 +126,7 @@ export default async function BapPrintPage({ params, searchParams }: { params: P
                     </div>
 
                     <div className="text-sm text-justify leading-relaxed mb-6 print:text-[11pt] print:my-2">
-                        Pada hari <strong>{formatTanggalLengkap(bap.date)}</strong> CV Putra Jaya telah menyelesaikan pekerjaan sesuai dengan perintah yang diberikan oleh <strong>{project.clientName}</strong> pada proyek yang berlokasi di <strong>{project.projectLocation}</strong>.
+                        Pada hari <strong>{formatTanggalLengkap(bap.date)}</strong> PT PUTRA JAYA TEKNIK MANDIRI telah menyelesaikan pekerjaan sesuai dengan perintah yang diberikan oleh <strong>{project.clientName}</strong> pada proyek yang berlokasi di <strong>{project.projectLocation}</strong>.
                     </div>
 
                     <p className="text-[11px] print:mt-1 sm:text-xs md:text-sm print:text-[10pt] mb-2">Berikut rincian pekerjaan dan material yang sudah diselesaikan:</p>
@@ -171,7 +171,7 @@ export default async function BapPrintPage({ params, searchParams }: { params: P
                     </thead>
                     <tbody>
                         <tr>
-                            <td className="border-r border-black py-1 font-bold uppercase">CV PUTRA JAYA</td>
+                            <td className="border-r border-black py-1 font-bold uppercase">PT PUTRA JAYA TEKNIK MANDIRI</td>
                             <td className="py-1 font-bold uppercase">{instansiText}</td>
                         </tr>
                         <tr>
@@ -213,8 +213,8 @@ export default async function BapPrintPage({ params, searchParams }: { params: P
                     <div className="flex justify-start items-center p-2">
                         <Image src="/PutraJaya_Logo.png" alt="Logo" width={64} height={64} className="object-contain w-10 h-10 md:w-16 md:h-16 print:w-16 print:h-16" />
                     </div>
-                    <div className="flex-1 flex items-center justify-center font-black text-lg md:text-3xl print:text-[20pt] text-center">
-                        CV PUTRA JAYA
+                    <div className="flex-1 flex items-center justify-center font-black text-lg md:text-3xl print:text-[18pt] text-center">
+                        PT PUTRA JAYA TEKNIK MANDIRI
                     </div>
                     <div className="border-l-2 border-black w-20 md:w-32 print:w-28 flex items-center justify-center font-bold text-gray-500 text-sm md:text-xl print:text-[14pt] print:text-gray-600">
                         BAPP

@@ -41,7 +41,7 @@ export default function ProyekClient({ portfolios }: { portfolios: any[] }) {
                             transition={{ delay: 0.2 }}
                             className="text-lg text-white/80 leading-relaxed font-medium"
                         >
-                            Bukti nyata dedikasi dan profesionalisme CV Putra Jaya. Jelajahi berbagai proyek konstruksi, coring, dan instalasi genset yang telah sukses kami selesaikan dengan standar kualitas tinggi.
+                            Bukti nyata dedikasi dan profesionalisme PT Putra Jaya Teknik Mandiri. Jelajahi berbagai proyek konstruksi, coring, dan instalasi genset yang telah sukses kami selesaikan dengan standar kualitas tinggi.
                         </motion.p>
                     </div>
                 </div>

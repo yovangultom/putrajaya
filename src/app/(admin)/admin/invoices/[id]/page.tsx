@@ -167,7 +167,7 @@ export default async function InvoicePrintPage({ params, searchParams }: { param
                         <Image src="/PutraJaya_Logo.png" alt="Logo" width={64} height={64} className="object-contain w-10 h-10 sm:w-12 sm:h-12 md:w-16 md:h-16 print:w-16 print:h-16" />
                     </div>
                     <div className="text-center flex-1 px-2">
-                        <h1 className="text-lg sm:text-2xl md:text-3xl print:text-[20pt] font-black text-black tracking-tight leading-none">CV PUTRA JAYA</h1>
+                        <h1 className="text-lg sm:text-2xl md:text-3xl print:text-[18pt] font-black text-black tracking-tight leading-none">PT PUTRA JAYA TEKNIK MANDIRI</h1>
                     </div>
                     <div className="text-right w-1/4 sm:w-auto">
                         <h2 className="text-sm sm:text-lg md:text-xl print:text-[14pt] font-black text-gray-400 uppercase tracking-tighter">INVOICE</h2>
@@ -374,7 +374,7 @@ export default async function InvoicePrintPage({ params, searchParams }: { param
 
                         <div className="relative z-0 leading-tight">
                             <p className="font-bold underline print:text-[10pt]">{currentSignee.name}</p>
-                            <p className="print:text-[10pt]">(CV Putra Jaya)</p>
+                            <p className="print:text-[10pt]">(PT PUTRA JAYA TEKNIK MANDIRI)</p>
                         </div>
                     </div>
 

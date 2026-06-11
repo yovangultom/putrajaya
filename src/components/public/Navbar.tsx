@@ -29,19 +29,26 @@ export default function Navbar() {
             <nav className="container mx-auto px-6 flex items-center justify-between">
                 {/* Logo & Brand Name */}
                 <Link href="/" aria-label="Halaman Utama" className="flex items-center gap-3">
-                    {/* Pembungkus logo agar tetap kontras saat belum di-scroll */}
-                    <div className={`p-1.5 rounded-xl transition-colors ${isScrolled ? "bg-transparent" : "bg-white/10 backdrop-blur-sm"}`}>
+                    {/* Logo Container */}
+                    <div className={`shrink-0 p-1.5 rounded-xl transition-colors ${isScrolled ? "bg-transparent" : "bg-white/10 backdrop-blur-sm"}`}>
                         <Image
                             src="/images/Logo-CV-PutraJaya.png"
-                            alt="Logo CV Putra Jaya"
-                            width={50}
-                            height={50}
-                            className="object-contain"
+                            alt="Logo PT Putra Jaya Teknik Mandiri"
+                            width={45}
+                            height={45}
+                            className="object-contain md:w-[50px] md:h-[50px]"
                         />
                     </div>
-                    <span className={`text-2xl font-black tracking-tighter ${isScrolled ? "text-[#0B0C35]" : "text-white"}`}>
-                        CV PUTRA JAYA
-                    </span>
+
+                    {/* Text Container - Typographic Hierarchy */}
+                    <div className="flex flex-col justify-center">
+                        <span className={`text-sm md:text-lg font-black tracking-tight leading-none ${isScrolled ? "text-[#0B0C35]" : "text-white"}`}>
+                            PUTRA JAYA
+                        </span>
+                        <span className={`text-[10px] md:text-xs font-bold tracking-[0.2em] mt-0.5 ${isScrolled ? "text-[#F49414]" : "text-white/80"}`}>
+                            TEKNIK MANDIRI
+                        </span>
+                    </div>
                 </Link>
 
                 {/* Desktop Menu */}

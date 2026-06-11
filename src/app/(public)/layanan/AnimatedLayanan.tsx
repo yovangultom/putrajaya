@@ -18,7 +18,7 @@ export function AnimatedHeroText() {
             {/* INI ADALAH ELEMEN LCP KAMU! */}
             {/* Saya MENGHAPUS animasi di elemen ini agar browser bisa langsung menampilkannya (menghilangkan delay 980ms) */}
             <p className="text-lg md:text-xl text-white/80 leading-relaxed font-medium">
-                CV Putra Jaya didukung oleh para tenaga ahli yang memiliki pengalaman kerja tinggi di bidangnya. Kami selalu berkomitmen menggunakan material serta alat terbaik dalam setiap pekerjaan.
+                PT Putra Jaya Teknik Mandiri didukung oleh para tenaga ahli yang memiliki pengalaman kerja tinggi di bidangnya. Kami selalu berkomitmen menggunakan material serta alat terbaik dalam setiap pekerjaan.
             </p>
         </div>
     );

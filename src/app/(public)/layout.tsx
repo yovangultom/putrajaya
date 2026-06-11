@@ -7,15 +7,15 @@ import Script from "next/script"; // 1. Tambahkan import ini
 
 export const metadata = {
     title: {
-        default: "Jasa Konstruksi, Coring, Genset, dan Chemical Anchor - CV Putra Jaya",
-        template: "%s | CV Putra Jaya"
+        default: "Jasa Konstruksi, Coring, Genset, dan Chemical Anchor - PT Putra Jaya Teknik Mandiri",
+        template: "%s | PT Putra Jaya Teknik Mandiri"
     },
-    description: "Cari Jasa Konstruksi, Coring, Genset, dan Chemical terpercaya? CV Putra Jaya menawarkan solusi teknik terbaik dengan standar mutu tinggi, aman, dan tepat waktu.",
+    description: "Cari Jasa Konstruksi, Coring, Genset, dan Chemical terpercaya? PT Putra Jaya Teknik Mandiri menawarkan solusi teknik terbaik dengan standar mutu tinggi, aman, dan tepat waktu.",
     openGraph: {
-        title: "Jasa Konstruksi, Coring, Genset, dan Chemical Anchor - CV Putra Jaya",
+        title: "Jasa Konstruksi, Coring, Genset, dan Chemical Anchor - PT Putra Jaya Teknik Mandiri",
         description: "Solusi teknik terbaik dengan standar mutu tinggi, aman, dan tepat waktu.",
         url: 'https://jasacoring.co.id',
-        siteName: 'CV Putra Jaya',
+        siteName: 'PT Putra Jaya Teknik Mandiri',
         images: [
             {
                 url: '/og-image.jpg',

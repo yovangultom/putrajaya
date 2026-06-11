@@ -75,7 +75,7 @@ export default async function FormulirCetakPage({ params }: { params: Promise<{ 
                     {/* 2. BAGIAN KANAN: TEKS IDENTITAS */}
                     <div className="flex-1 flex flex-col justify-start text-black">
                         <h1 className="text-lg sm:text-xl md:text-2xl print:text-[14pt] text-center font-black tracking-tighter leading-none mb-1 md:mb-2 print:mb-1">
-                            CV PUTRA JAYA
+                           PT PUTRA JAYA TEKNIK MANDIRI
                         </h1>
                         <p className="text-[9px] sm:text-[11px] md:text-[10pt] print:text-[10pt] text-center leading-tight print:leading-none">
                             Jl. KH Mochammad RT.01 RW.02 No.86,

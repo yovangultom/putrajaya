@@ -52,7 +52,7 @@ export default function KontakPage() {
                             transition={{ delay: 0.2 }}
                             className="text-lg text-white/80 leading-relaxed font-medium"
                         >
-                            Siap memulai proyek Anda? Hubungi tim ahli CV Putra Jaya untuk konsultasi teknis, penawaran harga, atau penjadwalan layanan konstruksi dan coring.
+                            Siap memulai proyek Anda? Hubungi tim ahli PT Putra Jaya Teknik Mandiri untuk konsultasi teknis, penawaran harga, atau penjadwalan layanan konstruksi dan coring.
                         </motion.p>
                     </div>
                 </div>

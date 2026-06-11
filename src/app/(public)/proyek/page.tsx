@@ -6,7 +6,7 @@ const prisma = new PrismaClient();
 // Ini sangat bagus untuk SEO
 export const metadata = {
     title: "Portofolio Proyek",
-    description: "Galeri hasil pekerjaan dan portofolio layanan dari CV Putra Jaya.",
+    description: "Galeri hasil pekerjaan dan portofolio layanan dari PT Putra Jaya Teknik Mandiri.",
 };
 
 export default async function ProyekPage() {
