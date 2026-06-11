@@ -48,7 +48,7 @@ export default function Testimonials() {
                             Apa Kata <span className="text-[#F49414]">Klien Kami?</span>
                         </h2>
                         <p className="text-slate-600 text-lg">
-                            Kepercayaan klien adalah prioritas kami. Berikut adalah beberapa ulasan asli dari pelanggan yang telah menggunakan jasa CV Putra Jaya.
+                            Kepercayaan klien adalah prioritas kami. Berikut adalah beberapa ulasan asli dari pelanggan yang telah menggunakan jasa PT PUTRA JAYA TEKNIK MANDIRI.
                         </p>
                     </motion.div>
                 </div>
