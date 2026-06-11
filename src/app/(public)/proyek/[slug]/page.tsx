@@ -14,7 +14,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     const project = await prisma.portfolio.findUnique({ where: { slug: resolvedParams.slug } });
     if (!project) return { title: "Proyek Tidak Ditemukan" };
     return {
-        title: `${project.title} | Portofolio CV Putra Jaya`,
+        title: `${project.title} | Portofolio PT Putra Jaya Teknik Mandiri`,
         description: project.description.substring(0, 160),
     };
 }

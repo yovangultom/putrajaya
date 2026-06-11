@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-    title: "Login Admin | CV Putra Jaya",
-    description: "Halaman akses masuk sistem manajemen CV Putra Jaya",
+    title: "Login Admin | PT Putra Jaya Teknik Mandiri",
+    description: "Halaman akses masuk sistem manajemen PT Putra Jaya Teknik Mandiri",
 };
 
 export default function LoginLayout({

@@ -5,8 +5,8 @@ import Sidebar from "@/components/Sidebar";
 
 // 2. Tambahkan pengaturan judul dan deskripsi untuk halaman Admin
 export const metadata: Metadata = {
-    title: "Admin Dashboard | CV Putra Jaya",
-    description: "Sistem manajemen konten dan portofolio CV Putra Jaya",
+    title: "Admin Dashboard | PT Putra Jaya Teknik Mandiri",
+    description: "Sistem manajemen konten dan portofolio PT Putra Jaya Teknik Mandiri",
 };
 
 export default async function AdminLayout({

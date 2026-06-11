@@ -34,7 +34,7 @@ export default function Sidebar({ session, signOutAction }: any) {
             <div className="lg:hidden fixed top-0 left-0 right-0 h-16 bg-slate-900 flex items-center justify-between px-4 z-50 print:hidden">
                 <div className="flex items-center gap-2">
                     <Image src="/PutraJaya_Logo.png" alt="Logo" width={32} height={32} className="object-contain" />
-                    <h1 className="text-white font-bold tracking-normal text-sm">CV PUTRA JAYA</h1>
+                    <h1 className="text-white font-bold tracking-normal text-sm">PT PUTRA JAYA TEKNIK MANDIRI  </h1>
                 </div>
                 <button onClick={() => setIsOpen(true)} className="text-white p-2">
                     <Menu size={24} />
@@ -74,7 +74,7 @@ export default function Sidebar({ session, signOutAction }: any) {
                         />
                     </div>
                     <div className="text-center">
-                        <h1 className="text-xl font-black tracking-normal text-white">CV PUTRA JAYA</h1>
+                        <h1 className="text-xl font-black tracking-normal text-white">PT PUTRA JAYA TEKNIK MANDIRI</h1>
                         <p className="text-[12px] text-amber-500 font-bold uppercase tracking-normal mt-1">Konstruksi Umum</p>
                     </div>
                     <button onClick={() => setIsOpen(false)} className="lg:hidden absolute top-4 right-4 text-slate-500">
