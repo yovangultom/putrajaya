@@ -118,7 +118,7 @@ export default function EditForm({ project }: { project: any }) {
                 </div>
 
                 <div className="space-y-4">
-                    {items.map((item, index) => (
+                    {items.map((item: any, index: number) => (
                         <div key={item.id} className="p-4 bg-slate-50 border border-slate-200 rounded-xl relative group">
                             <div className="grid grid-cols-12 gap-3 text-black">
                                 <div className="col-span-12 lg:col-span-4">
