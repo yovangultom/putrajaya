@@ -49,7 +49,7 @@ export default function EditForm({ project }: { project: any }) {
         setItems(newItems);
     };
 
-    const totalEstimasi = items.reduce((acc, curr) => {
+    const totalEstimasi = items.reduce((acc: number, curr: any) => {
         const qty = parseFloat(curr.qty) || 0;
         const price = parseFloat(curr.price) || 0;
         return acc + (qty * price);
