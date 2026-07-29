@@ -5,7 +5,7 @@ import { sendGAEvent } from '@next/third-parties/google';
 
 export default function FloatingWhatsApp() {
     const whatsappNumber = "6287888431444";
-    const message = "Halo CV Putra Jaya, saya ingin konsultasi mengenai jasa konstruksi.";
+    const message = "Halo PT Putra Jaya Teknik Mandiri, saya ingin konsultasi mengenai jasa konstruksi.";
     const waLink = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`;
 
     const handleWhatsAppClick = () => {

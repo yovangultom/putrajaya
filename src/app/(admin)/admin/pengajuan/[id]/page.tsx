@@ -2,12 +2,11 @@
 import { prisma } from "@/lib/prisma";
 import { notFound, redirect } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, CheckCircle, Calendar, DollarSign, FileText, PlayCircle, FileCheck2, Printer, XCircle } from "lucide-react";
+import { ArrowLeft, CheckCircle, Calendar, DollarSign, FileText, PlayCircle, FileCheck2, Printer, XCircle, Receipt, Edit } from "lucide-react";
 import { revalidatePath } from "next/cache";
 import RescheduleButton from "./RescheduleButton";
 import CancelButton from "./CancelButton";
 import AddExpenseModal from "./AddExpenseModal";
-import { Receipt } from "lucide-react";
 import JadwalDanTerminForm from "./JadwalDanTerminForm";
 import { terbitkanInvoiceTermin } from "./actions";
 import { tandaiInvoiceLunas } from "./actions";
@@ -147,10 +146,16 @@ export default async function DetailProyekPage({ params }: { params: Promise<{ i
                 <Link href="/admin/pengajuan" className="flex items-center gap-2 text-slate-800 hover:text-slate-900 text-sm font-medium transition-colors w-fit">
                     <ArrowLeft size={16} /> <span className="hidden sm:inline">Kembali ke Daftar</span><span className="sm:hidden">Kembali</span>
                 </Link>
-
-                <Link href={`/admin/pengajuan/${project.id}/formulir/cetak`} className="flex items-center gap-2 bg-white text-slate-700 border border-slate-300 py-2 px-3 md:px-4 rounded-xl text-[10px] md:text-xs font-bold uppercase tracking-widest hover:bg-slate-100 hover:text-slate-900 transition-all shadow-sm">
-                    <Printer size={16} /> <span className="hidden md:inline">Cetak Formulir Tugas</span><span className="md:hidden">Formulir</span>
-                </Link>
+                <div className="flex items-center gap-2 md:gap-3">
+                    {project.status === "PENGAJUAN" && (
+                        <Link href={`/admin/pengajuan/${project.id}/edit`} className="flex items-center gap-2 bg-amber-100 text-amber-700 border border-amber-300 py-2 px-3 md:px-4 rounded-xl text-[10px] md:text-xs font-bold uppercase tracking-widest hover:bg-amber-200 hover:text-amber-900 transition-all shadow-sm">
+                            <Edit size={16} /> <span className="hidden md:inline">Edit Pengajuan</span><span className="md:hidden">Edit</span>
+                        </Link>
+                    )}
+                    <Link href={`/admin/pengajuan/${project.id}/formulir/cetak`} className="flex items-center gap-2 bg-white text-slate-700 border border-slate-300 py-2 px-3 md:px-4 rounded-xl text-[10px] md:text-xs font-bold uppercase tracking-widest hover:bg-slate-100 hover:text-slate-900 transition-all shadow-sm">
+                        <Printer size={16} /> <span className="hidden md:inline">Cetak Formulir Tugas</span><span className="md:hidden">Formulir</span>
+                    </Link>
+                </div>
             </div>
 
             <div className="flex flex-col-reverse lg:grid lg:grid-cols-3 gap-6 md:gap-8">

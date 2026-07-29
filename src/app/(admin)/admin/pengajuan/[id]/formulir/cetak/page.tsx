@@ -154,7 +154,7 @@ export default async function FormulirCetakPage({ params }: { params: Promise<{ 
                         <ol className="list-decimal pl-4 sm:pl-5 print:pl-6 space-y-1 print:space-y-1 text-[8px] sm:text-[11px] md:text-[13px] print:text-[10.5pt] text-justify pr-1">
                             <li>Jika ketebalan beton lebih dari yang disebutkan diatas, maka harga akan dihitung sesuai aktual di lapangan.</li>
                             <li>Jika pengerjaan coring keliru akibat <strong>kesalahan marking</strong> diluar tanggung jawab kami dan akan tetap kami perhitungkan dengan biaya sebesar tersebut diatas.</li>
-                            <li>Apabila bukan karena kesalahan dari pihak kami, terdapat kekosongan hari kerja sehingga pekerjaan pengeboran/coring tidak dapat dilaksanakan dan pihak kami sudah siap di lapangan pada waktu yang bersamaan maka akan dikenakan biaya <strong>stand-by fee</strong> sebesar Rp 300.000,-/hari.</li>
+                            <li>Apabila bukan karena kesalahan dari pihak kami, terdapat kekosongan hari kerja sehingga pekerjaan pengeboran/coring tidak dapat dilaksanakan dan pihak kami sudah siap di lapangan pada waktu yang bersamaan maka akan dikenakan biaya <strong>stand-by fee</strong>.</li>
                             <li>Apabila ada <strong>tambahan titik</strong> coring, maka akan dikenakan biaya tersebut diatas.</li>
                             <li>Daya yang dibutuhkan untuk mesin coring 3.850 watt 1 phase.</li>
                             <li>Jika lokasi pekerjaan berada di ketinggian serta berisiko tinggi, pemberi tugas harus menyediakan APD sesuai kebutuhan.</li>
